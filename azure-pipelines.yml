@@ -52,6 +52,7 @@ pool:
 stages:
   # A) Build and code validation
   - stage: Build
+    condition: false 
     dependsOn: []
     jobs:
       # A1) Checkout, install module and build code
@@ -105,6 +106,7 @@ stages:
 
   # B) Run unit tests if there is a push or pull request on any branch.
   - stage: Test
+    condition: false 
     dependsOn: []
     jobs:
       - job: unit_tests
