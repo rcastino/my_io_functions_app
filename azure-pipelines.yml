@@ -153,9 +153,7 @@ stages:
           )
         )
       )
-    dependsOn:
-    - Build
-    - Test
+    dependsOn: []
     jobs:
       # Option 1: deploy directly to 'production' slot
       - job: deploy_standard
@@ -209,9 +207,7 @@ stages:
           )
         )
       )
-    dependsOn:
-    - Build
-    - Test
+    dependsOn: []
     jobs:
       # Option 1: deploy directly to 'production' slot
       - job: deploy_standard
