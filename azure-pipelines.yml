@@ -136,23 +136,7 @@ stages:
   #   b) $STAGING_DEPLOY_MODE == 'deploy_to_slots': deploy to 'staging' slot and
   #      then swap 'staging' slot with 'production' slot
   - stage: Deploy_staging
-    condition: 
-      and(
-        succeeded(),
-        and (
-          eq(variables['DO_DEPLOY'], true),
-          or(
-            and(
-              eq(variables['Build.SourceBranch'], 'refs/heads/master'),
-              ne(variables['Build.Reason'], 'Manual')
-            ),
-            and(
-              eq(variables['STAGING_ENABLE_MANUAL_DEPLOY'], true),
-              eq(variables['Build.Reason'], 'Manual')
-            )
-          )
-        )
-      )
+    condition: false
     dependsOn: []
     jobs:
       # Option 1: deploy directly to 'production' slot
@@ -227,6 +211,17 @@ stages:
         - template: azure-templates/deploy-steps.yml
           parameters:
             deployType: 'deployToStagingSlotAndSwap'
+            azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
+            resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
+            appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
+
+      # Option 3: deploy to 'staging' slot only
+      - job: deploy_to_staging_slot
+        condition: and(succeeded(), eq(variables['PRODUCTION_DEPLOY_MODE'], 'deploy_to_staging_slot'))
+        steps:
+        - template: azure-templates/deploy-steps.yml
+          parameters:
+            deployType: 'deployToStagingSlot'
             azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
             resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
             appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
