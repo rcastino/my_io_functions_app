@@ -22,6 +22,7 @@ steps:
     key: 'yarn-${{ parameters.cache_version_id }} | "$(Agent.OS)" | yarn.lock'
     restoreKeys: |
       yarn-${{ parameters.cache_version_id }} | "$(Agent.OS)"
+      yarn-${{ parameters.cache_version_id }}
     path: $(YARN_CACHE_FOLDER)
   displayName: 'Cache yarn packages'
 
