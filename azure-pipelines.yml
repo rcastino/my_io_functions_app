@@ -56,7 +56,7 @@ stages:
     jobs:
       - job: danger
         pool:
-          vmImage: 'ubuntu-latest'      
+          vmImage: 'windows-2019'      
         steps:
           - template: azure-templates/make-build-steps.yml
             parameters:
