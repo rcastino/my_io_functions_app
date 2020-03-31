@@ -15,9 +15,9 @@ steps:
       
 - task: Cache@2
   inputs:
-    key: 'yarn1 | "Windows_NT" | yarn.lock'
+    key: 'yarn1 | "ubuntu-latest" | yarn.lock'
     restoreKeys: |
-      yarn1 | "Windows_NT"
+      yarn1 | "ubuntu-latest"
     path: $(YARN_CACHE_FOLDER)
   displayName: Cache yarn packages
 
