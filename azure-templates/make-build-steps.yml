@@ -15,10 +15,10 @@ steps:
       
 - task: Cache@2
   inputs:
-    key: 'yarn-$(YARN_CACHE_VERSION) | "$(Agent.OS)" | yarn.lock'
+    key: 'yarn$(YARN_CACHE_VERSION) | "$(Agent.OS)" | yarn.lock'
     restoreKeys: |
-      'yarn-$(YARN_CACHE_VERSION) | "$(Agent.OS)"'
-      'yarn-$(YARN_CACHE_VERSION)'
+      yarn$(YARN_CACHE_VERSION) | "$(Agent.OS)"
+      yarn$(YARN_CACHE_VERSION)
     path: $(YARN_CACHE_FOLDER)
   displayName: 'Cache yarn packages'
 
