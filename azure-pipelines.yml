@@ -61,7 +61,6 @@ stages:
           - template: azure-templates/make-build-steps.yml
             parameters:
               make: install_dependencies
-              cache_id_version: '$(YARN_CACHE_VERSION)'
 
           - bash: |
               yarn danger ci
