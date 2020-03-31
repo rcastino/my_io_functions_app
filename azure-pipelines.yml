@@ -55,8 +55,6 @@ stages:
     dependsOn: []
     jobs:
       - job: danger
-        pool:
-          vmImage: 'ubuntu-latest'
         steps:
           - template: azure-templates/make-build-steps.yml
             parameters:
