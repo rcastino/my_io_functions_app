@@ -15,11 +15,12 @@ steps:
       
 - task: Cache@2
   inputs:
-    key: 'yarn1 | "ubuntu-latest" | yarn.lock'
+    key: 'yarn | "$(Agent.OS)" | yarn.lock'
     restoreKeys: |
-      yarn1 | "ubuntu-latest"
+      yarn | "$(Agent.OS)"
+      yarn
     path: $(YARN_CACHE_FOLDER)
-  displayName: Cache yarn packages
+  displayName: 'Cache yarn packages'
 
 - task: UseNode@1
   inputs:
