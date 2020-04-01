@@ -30,17 +30,17 @@ variables:
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
 parameters:
-- name: 'param1'
-  displayName: 'This is param'
+- name: 'PRODUCTION_DEPLOY_MODE'
+  displayName: 'Deploy mode in production:'
   type: string
-  default: my_val
+  default: deploy_standard
   values:
-  - my_val
-  - my_val1
-  - my_val2
+  - deploy_standard
+  - deploy_to_slots
+  - deploy_to_staging_slot
   
-- name: 'isProd'
-  displayName: 'Is production?'
+- name: 'PRODUCTION_ENABLE_MANUAL_DEPLOY'
+  displayName: 'Enable manual deploy in production'
   type: boolean
   default: false
 
