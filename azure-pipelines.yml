@@ -30,6 +30,18 @@ variables:
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
 parameters:
+- name: 'TEST_ENABLE_DEPLOY'
+  displayName: 'Enable deploy in test'
+  type: boolean
+  default: false
+
+- name: 'TEST_DEPLOY_MODE'
+  displayName: 'Deploy mode in test'
+  type: string
+  default: deploy
+  values:
+  - deploy
+
 - name: 'PRODUCTION_ENABLE_DEPLOY'
   displayName: 'Enable deploy in production'
   type: boolean
