@@ -31,6 +31,7 @@ variables:
 
 parameters:
 - name: 'param1'
+  displayName: 'This is param'
   type: string
   default: my_val
   values:
@@ -39,6 +40,7 @@ parameters:
   - my_val2
   
 - name: 'isProd'
+  displayName: 'Is production?'
   type: boolean
   default: false
 
