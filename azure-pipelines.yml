@@ -30,26 +30,19 @@ variables:
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
 parameters:
+- name: 'PRODUCTION_ENABLE_DEPLOY'
+  displayName: 'Enable deploy in production'
+  type: boolean
+  default: true
+
 - name: 'PRODUCTION_DEPLOY_MODE'
   displayName: 'Deploy mode in production:'
   type: string
-  default: deploy_standard
+  default: deploy_to_staging_slot
   values:
-  - deploy_standard
+  - deploy_to_production_slot
+  - deploy_to_staging_slot
   - deploy_to_staging_slot_and_swap
-  - deploy_to_staging_slot_with_auto_swap
-  
-- name: 'PRODUCTION_ENABLE_MANUAL_DEPLOY'
-  displayName: 'Enable manual deploy in production'
-  type: boolean
-  default: false
-
-- name: 'BUILD_REASON'
-  displayName: 'Build reason'
-  type: string
-  default: variables['Build.Reason']
-
-
 
 
 # This pipeline can be manually run or is automatically triggered whenever one 
@@ -210,16 +203,19 @@ stages:
 
   # D) Deploy to PRODUCTION environment if one of the following conditions apply:
   #    - continuos deployment (automatic):
-  #       - $DO_DEPLOY == true and
+  #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
   #       - the 'latest' tag is pushed 
   #    - manual deployment:
-  #       - $DO_DEPLOY == true and
+  #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
   #       - $PRODUCTION_ENABLE_MANUAL_DEPLOY == true
   # The following alternative deployment modes are supported:
-  #   a) $PRODUCTION_DEPLOY_MODE == 'deploy_standard': deploy to 'prodution' slot
-  #   b) $PRODUCTION_DEPLOY_MODE == 'deploy_to_slots': deploy to 'staging' slot and
-  #      then swap 'staging' slot with 'production' slot
-  - ${{ if and(eq(parameters.BUILD_REASON, 'Manual') , eq(parameters.PRODUCTION_ENABLE_MANUAL_DEPLOY, true)) }}:
+  #   a) PRODUCTION_DEPLOY_MODE == 'deploy_to_production_slot': deploy directly 
+  #       to 'prodution' slot
+  #   b) PRODUCTION_DEPLOY_MODE == 'deploy_to_staging_slot': deploy to 'staging'
+  #       slot (if auto-swap is on, the slot is swapped with 'production' slot)
+  #   c) PRODUCTION_DEPLOY_MODE == 'deploy_to_staging_slot_and_swap': deploy to 
+  #       'staging' slot and then explicitly swap 'staging' slot with 'production' slot
+  - ${{ if eq(parameters.PRODUCTION_ENABLE_DEPLOY, true) }}:
     - stage: Deploy_production
       condition: 
         and(
@@ -227,22 +223,16 @@ stages:
           and (
             eq(variables['DO_DEPLOY'], true),
             or(
-              and(
-                eq(variables['Build.SourceBranch'], 'refs/tags/latest'),
-                ne(variables['Build.Reason'], 'Manual')
-              ),
-              and(
-                eq(variables['PRODUCTION_ENABLE_MANUAL_DEPLOY'], true),
-                eq(variables['Build.Reason'], 'Manual')
-              )
+              eq(variables['Build.SourceBranch'], 'refs/tags/latest'),
+              eq(variables['Build.Reason'], 'Manual')
             )
           )
         )
       dependsOn: []
       jobs:
         # Option 1: deploy directly to 'production' slot
-        - ${{ if eq(parameters.PRODUCTION_DEPLOY_MODE, 'deploy_standard') }}:
-          - job: deploy_standard
+        - ${{ if eq(parameters.PRODUCTION_DEPLOY_MODE, 'deploy_to_production_slot') }}:
+          - job: deploy_to_production_slot
             steps:
             - template: azure-templates/deploy-steps.yml
               parameters:
@@ -263,8 +253,8 @@ stages:
                 appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
 
         # Option 3: deploy to 'staging' slot and then swap with 'production' slot
-        - ${{ if eq(parameters.PRODUCTION_DEPLOY_MODE, 'deploy_to_slots') }}:
-          - job: deploy_to_slots
+        - ${{ if eq(parameters.PRODUCTION_DEPLOY_MODE, 'deploy_to_staging_slot_and_swap') }}:
+          - job: deploy_to_staging_slot_and_swap
             steps:
             - template: azure-templates/deploy-steps.yml
               parameters:
