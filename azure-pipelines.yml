@@ -29,6 +29,20 @@ variables:
   NODE_VERSION: '10.14.1'
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
+parameters:
+- name: 'param1'
+  type: string
+  default: my_val
+  values:
+  - my_val
+  - my_val1
+  - my_val2
+  
+- name: 'isProd'
+  type: boolean
+  default: false
+
+
 # This pipeline can be manually run or is automatically triggered whenever one 
 # of the following conditions is true:
 # - a push is made to any branch in the repository (not only 'master')
@@ -227,7 +241,7 @@ stages:
             resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
             appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
 
-      # Option 2: deploy to staging slot and then swap with 'production' slot
+      # Option 2: deploy to 'staging' slot and then swap with 'production' slot
       - job: deploy_to_slots
         condition: and(succeeded(), eq(variables['PRODUCTION_DEPLOY_MODE'], 'deploy_to_slots'))
         steps:
