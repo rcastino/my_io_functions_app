@@ -169,18 +169,41 @@ stages:
   #    - manual deployment:
   #       - $DO_DEPLOY == true and TEST_ENABLE_DEPLOY == true
   # The following alternative deployment modes are supported:
-  #   a) TEST_DEPLOY_MODE == 'deploy_to_test_slot': deploy to 'test' slot
+  #   1) TEST_DEPLOY_MODE == 'deploy_to_test_slot': deploy to 'test' slot
+  #   2) TEST_DEPLOY_MODE == 'deploy_to_production_slot': deploy to 'production' slot
   - ${{ if eq(parameters.TEST_ENABLE_DEPLOY, true) }}:
     - stage: Deploy_test
+      condition: 
+        and(
+          succeeded(),
+          and (
+            eq(variables['DO_DEPLOY'], true),
+            or(
+              eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+              eq(variables['Build.Reason'], 'Manual')
+            )
+          )
+        )    
       dependsOn: []
       jobs:
-        # Option 1: deploy directly to 'test' slot
+        # Option 1: deploy directly to 'test' slot of the TEST env
         - job: deploy_to_test_slot
           condition: and(succeeded(), eq(variables['TEST_DEPLOY_MODE'], 'deploy_to_test_slot'))
           steps:
           - template: azure-templates/deploy-steps.yml
             parameters:
               deployType: 'deployToTestSlot'
+              azureSubscription: '$(TEST_AZURE_SUBSCRIPTION)'
+              resourceGroupName: '$(TEST_RESOURCE_GROUP_NAME)'
+              appName: '$(TEST_FUNCTION_APP_NAME)'
+
+        # Option 2: deploy directly to 'production' slot of the TEST env
+        - job: deploy_to_production_slot
+          condition: and(succeeded(), eq(variables['TEST_DEPLOY_MODE'], 'deploy_to_production_slot'))
+          steps:
+          - template: azure-templates/deploy-steps.yml
+            parameters:
+              deployType: 'deployToProductionSlot'
               azureSubscription: '$(TEST_AZURE_SUBSCRIPTION)'
               resourceGroupName: '$(TEST_RESOURCE_GROUP_NAME)'
               appName: '$(TEST_FUNCTION_APP_NAME)'
