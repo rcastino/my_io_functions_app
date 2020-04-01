@@ -30,6 +30,11 @@ variables:
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
 parameters:
+- name: 'NODE_V'
+  displayName: 'Enable deploy in test environment'
+  type: string
+  default: '10.14.1'
+
 - name: 'TEST_ENABLE_DEPLOY'
   displayName: 'Enable deploy in test environment'
   type: boolean
