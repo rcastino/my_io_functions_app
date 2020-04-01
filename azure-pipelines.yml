@@ -60,7 +60,8 @@ trigger:
 # This pipeline has been implemented to be run on hosted agent pools based both
 # on 'windows' and 'ubuntu' virtual machine images and using the scripts defined
 # in the package.json file. Since we are deploying on Azure functions on Windows
-# runtime, the pipeline is currently configured to use a Windows hosted image.
+# runtime, the pipeline is currently configured to use a Windows hosted image for
+# the build and deploy.
 pool:
   vmImage: 'windows-2019'
 
@@ -184,7 +185,9 @@ stages:
             )
           )
         )    
-      dependsOn: []
+      dependsOn:
+        - Build
+        - Test
       jobs:
         # Option 1: deploy directly to 'test' slot of the TEST env
         - job: deploy_to_test_slot
