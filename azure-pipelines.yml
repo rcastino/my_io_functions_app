@@ -31,19 +31,19 @@ variables:
 
 parameters:
 - name: 'TEST_ENABLE_DEPLOY'
-  displayName: 'Enable deploy in test'
+  displayName: 'Enable deploy in test environment'
   type: boolean
   default: false
 
 - name: 'TEST_DEPLOY_MODE'
-  displayName: 'Deploy mode in test'
+  displayName: 'Deploy mode in test:'
   type: string
-  default: deploy
+  default: deploy_to_test_slot
   values:
-  - deploy
+    - deploy_to_test_slot 
 
 - name: 'PRODUCTION_ENABLE_DEPLOY'
-  displayName: 'Enable deploy in production'
+  displayName: 'Enable deploy in production environment'
   type: boolean
   default: true
 
@@ -52,9 +52,9 @@ parameters:
   type: string
   default: deploy_to_staging_slot
   values:
-  - deploy_to_production_slot
-  - deploy_to_staging_slot
-  - deploy_to_staging_slot_and_swap
+    - deploy_to_production_slot
+    - deploy_to_staging_slot
+    - deploy_to_staging_slot_and_swap
 
 
 # This pipeline can be manually run or is automatically triggered whenever one 
