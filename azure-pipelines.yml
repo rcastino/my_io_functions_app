@@ -212,7 +212,7 @@ stages:
   #   a) $PRODUCTION_DEPLOY_MODE == 'deploy_standard': deploy to 'prodution' slot
   #   b) $PRODUCTION_DEPLOY_MODE == 'deploy_to_slots': deploy to 'staging' slot and
   #      then swap 'staging' slot with 'production' slot
-  - ${{ if and(succeeded() , eq(parameters.PRODUCTION_ENABLE_MANUAL_DEPLOY, true)) }}:
+  - ${{ if and(eq(parameters.Build.Reason, 'Manual') , eq(parameters.PRODUCTION_ENABLE_MANUAL_DEPLOY, true)) }}:
     - stage: Deploy_production
       condition: 
         and(
