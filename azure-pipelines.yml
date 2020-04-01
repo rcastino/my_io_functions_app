@@ -57,9 +57,9 @@ parameters:
   type: string
   default: deploy_to_staging_slot
   values:
-    - deploy_to_production_slot
+    #- deploy_to_production_slot
     - deploy_to_staging_slot
-    - deploy_to_staging_slot_and_swap
+    #- deploy_to_staging_slot_and_swap
 
 
 # This pipeline can be manually run or is automatically triggered whenever one 
