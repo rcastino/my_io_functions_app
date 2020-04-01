@@ -37,7 +37,7 @@ parameters:
   values:
   - deploy_standard
   - deploy_to_slots
-  - deploy_to_staging_slot
+  - deployToStagingSlot
   
 - name: 'PRODUCTION_ENABLE_MANUAL_DEPLOY'
   displayName: 'Enable manual deploy in production'
@@ -256,7 +256,7 @@ stages:
 
       # Option 3: deploy to 'staging' slot only
       - job: deploy_to_staging_slot
-        condition: and(succeeded(), eq(parameters.PRODUCTION_DEPLOY_MODE, 'deploy_to_staging_slot'))
+        condition: and(succeeded(), eq(parameters.PRODUCTION_DEPLOY_MODE, 'deployToStagingSlot'))
         steps:
         - template: azure-templates/deploy-steps.yml
           parameters:
