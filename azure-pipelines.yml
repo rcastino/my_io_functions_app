@@ -260,7 +260,7 @@ stages:
         steps:
         - template: azure-templates/deploy-steps.yml
           parameters:
-            deployType: parameters.PRODUCTION_DEPLOY_MODE
+            deployType: ${{ parameters.PRODUCTION_DEPLOY_MODE }} 
             azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
             resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
             appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
