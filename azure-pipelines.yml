@@ -40,7 +40,7 @@ parameters:
     default: false
 
   - name: 'TEST_DEPLOY_TYPE'
-    displayName: 'Test deployment type'
+    displayName: 'test deployment type  (if enabled)'
     type: string
     default: deployToTestSlot
     values:
@@ -53,7 +53,7 @@ parameters:
     default: true
 
   - name: 'PRODUCTION_DEPLOY_TYPE'
-    displayName: 'Production deployment type'
+    displayName: 'production deployment type (if enabled)'
     type: string
     default: deployToStagingSlot
     values:
