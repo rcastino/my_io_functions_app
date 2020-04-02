@@ -85,7 +85,7 @@ pool:
 
 stages:
 
-  - stage: Raimondo_${{ parameters.DEPLOY_TYPE }}
+  - stage: Raimondo
     condition: false
     dependsOn: []
     jobs:
