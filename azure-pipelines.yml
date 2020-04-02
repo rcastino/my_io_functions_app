@@ -39,15 +39,27 @@ parameters:
     type: boolean
     default: false
 
+  - name: 'TEST_DEPLOY_TYPE'
+    displayName: 'Test deployment type'
+    type: string
+    default: deployToTestSlot
+    values:
+      - deployToTestSlot  
+      - deployToProductionSlot
+
   - name: 'PRODUCTION_ENABLE_DEPLOY'
     displayName: 'Enable deploy in production environment'
     type: boolean
     default: true
 
-  - name: 'DEPLOY_TYPE'
-    displayName: 'Deploy type'
+  - name: 'PRODUCTION_DEPLOY_TYPE'
+    displayName: 'Production deployment type'
     type: string
-    default: deployToTestSlot    
+    default: deployToStagingSlot
+    values:
+      - deployToStagingSlot  
+      - deployToProductionSlot
+      - deployToStagingSlotAndSwap
 
 # This pipeline can be manually run or is automatically triggered whenever one 
 # of the following conditions is true:
@@ -257,7 +269,6 @@ stages:
       dependsOn: []
       jobs:
         - job: '${{ parameters.DEPLOY_TYPE }}'
-          condition: and(succeeded(), eq(variables['PRODUCTION_DEPLOY_MODE'], 'deploy_to_production_slot'))
           steps:
           - template: azure-templates/deploy-steps.yml
             parameters:
