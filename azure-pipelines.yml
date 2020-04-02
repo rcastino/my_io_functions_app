@@ -28,7 +28,10 @@
 # - TEST_AZURE_SUBSCRIPTION
 # - TEST_RESOURCE_GROUP_NAME
 # - TEST_FUNCTION_APP_NAME
-#
+# 
+# Please note that the deployment to a slot (e.g. 'staging') could automatically
+# trigger the swapping with 'production' slot if "auto swap" has been enabled in
+# the app service configuration. 
 
 variables:
   NODE_VERSION: '10.14.1'
