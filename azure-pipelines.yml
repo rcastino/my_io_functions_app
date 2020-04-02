@@ -72,7 +72,7 @@ pool:
 
 stages:
 
-  - stage: Raimondo
+  - stage: Raimondo-${{ parameters.DEPLOY_TYPE }}
     dependsOn: []
     jobs:
 
