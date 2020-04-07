@@ -105,6 +105,19 @@ stages:
         pool:
           vmImage: 'windows-2019'      
         steps:
+          - task: GitHubRelease@1
+            inputs:
+              gitHubConnection: 'GITHUB_SERVICE_CONN'
+              repositoryName: '$(Build.Repository.Name)'
+              action: 'create'
+              target: '$(Build.SourceVersion)'
+              tagSource: 'gitTag'
+              title: 'My Release'
+              releaseNotesSource: 'inline'
+              releaseNotesInline: 'By Azure Pipeline'
+              changeLogCompareToRelease: 'lastFullRelease'
+              changeLogType: 'commitBased'
+
           - bash: |
               echo 'RAI_VAR: $RAI_VAR'
             env:
