@@ -94,7 +94,7 @@ pool:
 stages:
 
   - stage: Raimondo
-    condition: false
+    condition: true
     dependsOn: []
     jobs:
 
