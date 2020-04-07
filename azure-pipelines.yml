@@ -40,9 +40,7 @@
 variables:
   NODE_VERSION: '10.14.2'
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
-  app-location:
-  isSecret: null
-  value: '${{ parameters.TEST_DEPLOY_TYPE }}'
+  RAI_VAR: '${{ parameters.TEST_DEPLOY_TYPE }}'
 
 parameters:
   - name: 'TEST_ENABLE_DEPLOY'
@@ -104,6 +102,12 @@ stages:
         pool:
           vmImage: 'windows-2019'      
         steps:
+          - bash: |
+              echo 'RAI_VAR: $RAI_VAR'
+            env:
+              RAI_VAR: '$(RAI_VAR)'
+            displayName: 'Danger CI'
+
           - template: azure-templates/make-build-steps.yml
             parameters:
               make: install_dependencies
