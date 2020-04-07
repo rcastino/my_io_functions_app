@@ -96,7 +96,6 @@ pool:
 stages:
 
   - stage: Raimondo
-    condition: eq(variables['Build.SourceBranch'], 'refs/heads/releases')
 
     dependsOn: []
     jobs:
