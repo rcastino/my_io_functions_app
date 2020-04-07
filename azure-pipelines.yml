@@ -37,11 +37,6 @@
 # because conflicting with another (automatic) swap operation in progress.
 # 
 
-variables:
-  NODE_VERSION: '10.14.2'
-  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
-  RAI_VAR: '${{ parameters.TEST_DEPLOY_TYPE }}'
-
 parameters:
   - name: 'TEST_ENABLE_DEPLOY'
     displayName: 'Enable deploy in test environment'
@@ -69,6 +64,12 @@ parameters:
       - deployToStagingSlot  
       - deployToProductionSlot
       - deployToStagingSlotAndSwap
+
+variables:
+  NODE_VERSION: '10.14.2'
+  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
+  RAI_VAR: '${{ parameters.TEST_DEPLOY_TYPE }}'
+
 
 # This pipeline can be manually run or is automatically triggered whenever one 
 # of the following conditions is true:
