@@ -68,7 +68,7 @@ parameters:
 variables:
   NODE_VERSION: '10.14.2'
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
-  RAI_VAR: '${{ parameters.TEST_DEPLOY_TYPE }}'
+  RAI_VAR: ${{ parameters.TEST_DEPLOY_TYPE }}
 
 
 # This pipeline can be manually run or is automatically triggered whenever one 
@@ -83,6 +83,7 @@ trigger:
     include:
       - '*'
       - refs/tags/latest
+      - refs/heads/releases
 
 # This pipeline has been implemented to be run on hosted agent pools based both
 # on 'windows' and 'ubuntu' virtual machine images and using the scripts defined
@@ -95,7 +96,8 @@ pool:
 stages:
 
   - stage: Raimondo
-    condition: true
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/releases')
+
     dependsOn: []
     jobs:
 
