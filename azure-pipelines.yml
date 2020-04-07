@@ -40,6 +40,9 @@
 variables:
   NODE_VERSION: '10.14.2'
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
+  app-location:
+  isSecret: null
+  value: '${{ parameters.TEST_DEPLOY_TYPE }}'
 
 parameters:
   - name: 'TEST_ENABLE_DEPLOY'
