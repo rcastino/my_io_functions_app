@@ -83,7 +83,7 @@ trigger:
     include:
       - '*'
       - refs/tags/latest
-      - refs/heads/releases
+      - releases/*
 
 # This pipeline has been implemented to be run on hosted agent pools based both
 # on 'windows' and 'ubuntu' virtual machine images and using the scripts defined
