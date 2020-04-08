@@ -39,7 +39,7 @@
 
 parameters:
   - name: 'TEST_ENABLE_DEPLOY'
-    displayName: 'Enable deploy in test environment'
+    displayName: 'Deploy in test environment'
     type: boolean
     default: false
 
@@ -52,9 +52,9 @@ parameters:
       - deployToProductionSlot
 
   - name: 'PRODUCTION_ENABLE_DEPLOY'
-    displayName: 'Enable deploy in production environment'
+    displayName: 'Deploy in production environment'
     type: boolean
-    default: true
+    default: false
 
   - name: 'PRODUCTION_DEPLOY_TYPE'
     displayName: 'Method to achieve deployment in Production (if enabled):'
@@ -68,6 +68,7 @@ parameters:
 variables:
   NODE_VERSION: '10.14.2'
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
+  DO_MANUAL_TEST_DEPLOY: ${{ parameters.TEST_ENABLE_DEPLOY }}
   DO_MANUAL_PRODUCTION_DEPLOY: ${{ parameters.PRODUCTION_ENABLE_DEPLOY }}
 
 # This pipeline can be manually run or is automatically triggered whenever one 
@@ -223,7 +224,6 @@ stages:
   #       - there is a push on 'master' branch 
   #    - manual deployment:
   #       - $DO_DEPLOY == true and TEST_ENABLE_DEPLOY == true
-  #- ${{ if eq(parameters.TEST_ENABLE_DEPLOY, true) }}:
   - stage: Deploy_test
     condition: 
       and(
@@ -231,8 +231,14 @@ stages:
         and (
           eq(variables['DO_DEPLOY'], true),
           or(
-            eq(variables['Build.SourceBranch'], 'refs/heads/master'),
-            eq(variables['Build.Reason'], 'Manual')
+            and(
+              eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+              ne(variables['Build.Reason'], 'Manual')
+            ),
+            and(
+              eq(variables['DO_MANUAL_TEST_DEPLOY'], true),
+              eq(variables['Build.Reason'], 'Manual')
+            )
           )
         )
       )    
@@ -284,5 +290,3 @@ stages:
             azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
             resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
             appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
-
-#  - ${{ if eq(parameters.PRODUCTION_ENABLE_DEPLOY, true) }}:
