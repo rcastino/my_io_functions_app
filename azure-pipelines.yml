@@ -265,7 +265,7 @@ stages:
           or(
             and(
               eq(variables['Build.SourceBranch'], 'refs/tags/latest'),
-              neq(variables['Build.Reason'], 'Manual')
+              ne(variables['Build.Reason'], 'Manual')
             ),
             and(
               eq(variables['DO_MANUAL_PRODUCTION_DEPLOY'], true),
