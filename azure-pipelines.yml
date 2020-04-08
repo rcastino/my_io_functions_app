@@ -66,10 +66,16 @@ parameters:
       - deployToStagingSlotAndSwap
 
 variables:
-  NODE_VERSION: '10.14.2'
-  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
-  DO_MANUAL_TEST_DEPLOY: ${{ parameters.TEST_ENABLE_DEPLOY }}
-  DO_MANUAL_PRODUCTION_DEPLOY: ${{ parameters.PRODUCTION_ENABLE_DEPLOY }}
+  - name: NODE_VERSION
+    value: '10.14.2'
+  - name: YARN_CACHE_FOLDER
+    value: $(Pipeline.Workspace)/.yarn
+  - name: DO_MANUAL_TEST_DEPLOY
+    value: ${{ parameters.TEST_ENABLE_DEPLOY }}
+  - name: DO_MANUAL_PRODUCTION_DEPLOY
+    value: ${{ parameters.PRODUCTION_ENABLE_DEPLOY }}
+  - group: RaiVars 
+
 
 # This pipeline can be manually run or is automatically triggered whenever one 
 # of the following conditions is true:
@@ -105,6 +111,7 @@ stages:
           vmImage: 'windows-2019'      
         steps:
           - bash: |
+              echo "RAI_VAR_GROUP : $RAI_MY_VAR"
               echo "RAI_VAR: $RAI_VAR"
               echo "Build.Repository.Name: $BUILD_REP_NAME"
               echo "BUILD_SOURCE_VER: $BUILD_SOURCE_VER"
@@ -114,6 +121,7 @@ stages:
               BUILD_REP_NAME: '$(Build.Repository.Name)'
               BUILD_SOURCE_VER: '$(Build.SourceVersion)'
               TEST_FUNCTION_APP_NAME: $(TEST_FUNCTION_APP_NAME)
+              RAI_MY_VAR: $(RAI_MY_VAR)
             displayName: 'Print ENV'
 
           - task: GitHubRelease@1
