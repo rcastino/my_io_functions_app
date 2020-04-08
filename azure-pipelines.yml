@@ -124,6 +124,12 @@ stages:
               RAI_MY_VAR: $(RAI_MY_VAR)
             displayName: 'Print ENV'
 
+
+          - template: azure-templates/make-build-steps.yml
+            parameters:
+              make: install_dependencies
+
+
           - task: GitHubRelease@1
             inputs:
               gitHubConnection: 'GITHUB_SERVICE_CONN'
@@ -136,11 +142,7 @@ stages:
               releaseNotesInline: 'By Azure Pipeline'
               changeLogCompareToRelease: 'lastFullRelease'
               changeLogType: 'commitBased'
-
-          - template: azure-templates/make-build-steps.yml
-            parameters:
-              make: install_dependencies
-
+              
           - bash: |
               yarn danger ci
             env:
