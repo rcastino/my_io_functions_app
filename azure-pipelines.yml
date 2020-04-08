@@ -8,8 +8,8 @@
 # To enable the deployment in any environment you need to configure the following 
 # global variable otherwise all the deployment jobs will be always skipped:
 # - DO_DEPLOY = true
-# you also need to configure the following additional parameters based on the 
-# environment(s) to update when running the pipeline:
+# For manual run only, you also need to set the following additional parameters  
+# based on the environment(s) to update when running the pipeline:
 # - PRODUCTION_ENABLE_DEPLOY = true
 # - TEST_ENABLE_DEPLOY = true
 #
@@ -280,7 +280,9 @@ stages:
           )
         )
       )
-    dependsOn: []
+    dependsOn:
+      - Build
+      - Test
     jobs:
       - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
         steps:
