@@ -133,7 +133,7 @@ stages:
               action: 'create'
               target: '$(Build.SourceVersion)'
               tagSource: 'userSpecifiedTag'
-              tag: '$(Build.BuildNumber)'
+              tagPattern: v*
               title: 'My Release'
               releaseNotesSource: 'inline'
               releaseNotesInline: 'By Azure Pipeline'
