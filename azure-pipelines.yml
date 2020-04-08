@@ -65,6 +65,16 @@ parameters:
       - deployToProductionSlot
       - deployToStagingSlotAndSwap
 
+  - name: 'PACKAGE_VERSION'
+    displayName: 'Increment "major", "minor", "patch", or "pre*" version; or specify version:'
+    type: string
+    default: patch
+    values:
+      - major  
+      - minor
+      - patch
+      - pre*
+
 variables:
   - name: NODE_VERSION
     value: '10.14.2'
