@@ -108,7 +108,7 @@ stages:
 
       - job: danger
         pool:
-          vmImage: 'windows-2019'      
+          vmImage: 'ubuntu-latest'      
         steps:
           - bash: |
               echo "RAI_VAR_GROUP : $RAI_MY_VAR"
