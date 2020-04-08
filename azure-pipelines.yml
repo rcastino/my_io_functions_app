@@ -125,10 +125,6 @@ stages:
             displayName: 'Print ENV'
 
 
-          - template: azure-templates/make-build-steps.yml
-            parameters:
-              make: install_dependencies
-
 
           - task: GitHubRelease@1
             inputs:
@@ -145,7 +141,7 @@ stages:
               changeLogType: 'commitBased'
               
           - bash: |
-              yarn danger ci
+              #yarn danger ci
             env:
               DANGER_GITHUB_API_TOKEN: '$(DANGER_GITHUB_API_TOKEN)'
             displayName: 'Danger CI'
