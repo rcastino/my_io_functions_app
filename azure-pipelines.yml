@@ -106,12 +106,14 @@ stages:
         steps:
           - bash: |
               echo 'RAI_VAR: $RAI_VAR'
-              echo 'Build.Repository.Name: $BUILD_REP_NAME'
+              echo "Build.Repository.Name: $BUILD_REP_NAME"
               echo 'BUILD_SOURCE_VER: $BUILD_SOURCE_VER'
+              echo "$TEST_FUNCTION_APP_NAME"
             env:
               RAI_VAR: '$(RAI_VAR)'
               BUILD_REP_NAME: '$(Build.Repository.Name)'
               BUILD_SOURCE_VER: '$(Build.SourceVersion)'
+              TEST_FUNCTION_APP_NAME: $(TEST_FUNCTION_APP_NAME)
             displayName: 'Print ENV'
 
           - task: GitHubRelease@1
