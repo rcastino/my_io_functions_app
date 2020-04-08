@@ -66,11 +66,11 @@ parameters:
       - deployToStagingSlotAndSwap
 
   - name: 'PACKAGE_VERSION'
-    displayName: 'Increment "major", "minor", "patch", or "pre*" version; or specify version:'
+    displayName: 'Increment versioning for release publishing (if deploying in prod):'
     type: string
     default: patch
     values:
-      - major  
+      - major
       - minor
       - patch
       - pre*
