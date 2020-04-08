@@ -223,31 +223,31 @@ stages:
   #       - there is a push on 'master' branch 
   #    - manual deployment:
   #       - $DO_DEPLOY == true and TEST_ENABLE_DEPLOY == true
-  - ${{ if eq(parameters.TEST_ENABLE_DEPLOY, true) }}:
-    - stage: Deploy_test
-      condition: 
-        and(
-          succeeded(),
-          and (
-            eq(variables['DO_DEPLOY'], true),
-            or(
-              eq(variables['Build.SourceBranch'], 'refs/heads/master'),
-              eq(variables['Build.Reason'], 'Manual')
-            )
+  #- ${{ if eq(parameters.TEST_ENABLE_DEPLOY, true) }}:
+  - stage: Deploy_test
+    condition: 
+      and(
+        succeeded(),
+        and (
+          eq(variables['DO_DEPLOY'], true),
+          or(
+            eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+            eq(variables['Build.Reason'], 'Manual')
           )
-        )    
-      dependsOn:
-        - Build
-        - Test
-      jobs:
-        - job: '${{ parameters.TEST_DEPLOY_TYPE }}'
-          steps:
-          - template: azure-templates/deploy-steps.yml
-            parameters:
-              deployType: '${{ parameters.TEST_DEPLOY_TYPE }}'
-              azureSubscription: '$(TEST_AZURE_SUBSCRIPTION)'
-              resourceGroupName: '$(TEST_RESOURCE_GROUP_NAME)'
-              appName: '$(TEST_FUNCTION_APP_NAME)'
+        )
+      )    
+    dependsOn:
+      - Build
+      - Test
+    jobs:
+      - job: '${{ parameters.TEST_DEPLOY_TYPE }}'
+        steps:
+        - template: azure-templates/deploy-steps.yml
+          parameters:
+            deployType: '${{ parameters.TEST_DEPLOY_TYPE }}'
+            azureSubscription: '$(TEST_AZURE_SUBSCRIPTION)'
+            resourceGroupName: '$(TEST_RESOURCE_GROUP_NAME)'
+            appName: '$(TEST_FUNCTION_APP_NAME)'
 
 
   # D) Deploy to PRODUCTION environment if one of the following conditions apply:
@@ -260,14 +260,14 @@ stages:
     condition: 
       and(
         succeeded(),
-        and (
+        and(
           eq(variables['DO_DEPLOY'], true),
           or(
-            and (
+            and(
               eq(variables['Build.SourceBranch'], 'refs/tags/latest'),
               neq(variables['Build.Reason'], 'Manual')
             ),
-            and (
+            and(
               eq(variables['DO_MANUAL_PRODUCTION_DEPLOY'], true),
               eq(variables['Build.Reason'], 'Manual')
             )
