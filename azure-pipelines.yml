@@ -68,8 +68,7 @@ parameters:
 variables:
   NODE_VERSION: '10.14.2'
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
-  RAI_VAR: ${{ parameters.TEST_DEPLOY_TYPE }}
-
+  DO_MANUAL_PRODUCTION_DEPLOY: ${{ parameters.PRODUCTION_ENABLE_DEPLOY }}
 
 # This pipeline can be manually run or is automatically triggered whenever one 
 # of the following conditions is true:
@@ -257,26 +256,33 @@ stages:
   #       - the 'latest' tag is pushed 
   #    - manual deployment:
   #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
-  - ${{ if eq(parameters.PRODUCTION_ENABLE_DEPLOY, true) }}:
-    - stage: Deploy_production
-      condition: 
-        and(
-          succeeded(),
-          and (
-            eq(variables['DO_DEPLOY'], true),
-            or(
+  - stage: Deploy_production
+    condition: 
+      and(
+        succeeded(),
+        and (
+          eq(variables['DO_DEPLOY'], true),
+          or(
+            and (
               eq(variables['Build.SourceBranch'], 'refs/tags/latest'),
+              neq(variables['Build.Reason'], 'Manual')
+            ),
+            and (
+              eq(variables['DO_MANUAL_PRODUCTION_DEPLOY'], true),
               eq(variables['Build.Reason'], 'Manual')
             )
           )
         )
-      dependsOn: []
-      jobs:
-        - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
-          steps:
-          - template: azure-templates/deploy-steps.yml
-            parameters:
-              deployType: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
-              azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
-              resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
-              appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
+      )
+    dependsOn: []
+    jobs:
+      - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
+        steps:
+        - template: azure-templates/deploy-steps.yml
+          parameters:
+            deployType: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
+            azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
+            resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
+            appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
+
+#  - ${{ if eq(parameters.PRODUCTION_ENABLE_DEPLOY, true) }}:
