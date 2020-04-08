@@ -104,6 +104,16 @@ stages:
         pool:
           vmImage: 'windows-2019'      
         steps:
+          - bash: |
+              echo 'RAI_VAR: $RAI_VAR'
+              echo 'Build.Repository.Name: $BUILD_REP_NAME'
+              echo 'BUILD_SOURCE_VER: $BUILD_SOURCE_VER'
+            env:
+              RAI_VAR: '$(RAI_VAR)'
+              BUILD_REP_NAME: '$(Build.Repository.Name)'
+              BUILD_SOURCE_VER: '$(Build.SourceVersion)'
+            displayName: 'Print ENV'
+
           - task: GitHubRelease@1
             inputs:
               gitHubConnection: 'GITHUB_SERVICE_CONN'
@@ -116,12 +126,6 @@ stages:
               releaseNotesInline: 'By Azure Pipeline'
               changeLogCompareToRelease: 'lastFullRelease'
               changeLogType: 'commitBased'
-
-          - bash: |
-              echo 'RAI_VAR: $RAI_VAR'
-            env:
-              RAI_VAR: '$(RAI_VAR)'
-            displayName: 'Danger CI'
 
           - template: azure-templates/make-build-steps.yml
             parameters:
