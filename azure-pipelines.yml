@@ -144,6 +144,7 @@ stages:
               echo "BUILD_SOURCE_VER: $BUILD_SOURCE_VER"
               echo "$TEST_FUNCTION_APP_NAME"
               echo "BUILD_SOURCE: $BUILD_SOURCE"
+              echo "PACKAGE_VERSION: $PACKAGE_VERSION"
             env:
               RAI_VAR: '$(RAI_VAR)'
               BUILD_REP_NAME: '$(Build.Repository.Name)'
@@ -151,6 +152,7 @@ stages:
               TEST_FUNCTION_APP_NAME: $(TEST_FUNCTION_APP_NAME)
               RAI_MY_VAR: $(RAI_MY_VAR)
               BUILD_SOURCE: $(Build.SourceBranch)
+              PACKAGE_VERSION: '${{ parameters.PACKAGE_VERSION }}'
             displayName: 'Print ENV'
 
 
@@ -305,7 +307,7 @@ stages:
               GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
               GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
               GITHUB_TOKEN: '$(GITHUB_TOKEN)'
-              PACKAGE_VERSION: '${{ parameters.PUBLISH_RELEASE }}'
+              PACKAGE_VERSION: '${{ parameters.PACKAGE_VERSION }}'
             displayName: 'release-it'
 
 
