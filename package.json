@@ -1,6 +1,6 @@
 {
   "name": "io-functions-app",
-  "version": "2.7.0",
+  "version": "2.7.1-alpha.0",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
