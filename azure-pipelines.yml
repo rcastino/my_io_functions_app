@@ -126,17 +126,20 @@ stages:
               echo "Build.Repository.Name: $BUILD_REP_NAME"
               echo "BUILD_SOURCE_VER: $BUILD_SOURCE_VER"
               echo "$TEST_FUNCTION_APP_NAME"
+              echo "BUILD_SOURCE: $BUILD_SOURCE"
             env:
               RAI_VAR: '$(RAI_VAR)'
               BUILD_REP_NAME: '$(Build.Repository.Name)'
               BUILD_SOURCE_VER: '$(Build.SourceVersion)'
               TEST_FUNCTION_APP_NAME: $(TEST_FUNCTION_APP_NAME)
               RAI_MY_VAR: $(RAI_MY_VAR)
+              BUILD_SOURCE: $(Build.SourceBranch)
             displayName: 'Print ENV'
 
 
 
           - task: GitHubRelease@1
+            condition: false
             inputs:
               gitHubConnection: 'release'
               repositoryName: '$(Build.Repository.Name)'
