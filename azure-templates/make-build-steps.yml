@@ -15,6 +15,7 @@ parameters:
   
 steps:
 - checkout: self
+  persistCredentials: true
   displayName: 'Checkout'
       
 - task: Cache@2
