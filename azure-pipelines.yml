@@ -255,13 +255,15 @@ stages:
           displayName: 'Code coverage'
 
 
-  # P) Publish release.
+  # P) Create a new version and publish the corresponding release to GitHub.
   #    - continuos deployment (automatic):
   #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true
   #       - the 'latest' tag is pushed
   #    - manual deployment:
   #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true
   - stage: Publish_release
+    pool:
+      vmImage: 'ubuntu-latest'
     condition: 
       and(
         succeeded(),
