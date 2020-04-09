@@ -86,6 +86,12 @@ variables:
     value: ${{ parameters.PRODUCTION_ENABLE_DEPLOY }}
   - group: RaiVars 
 
+resources:
+  repositories:
+  - repository: MyGitHubRepo
+    type: github
+    name: rcastino/my_io_functions_app
+    endpoint: MyContosoServiceConnection
 
 # This pipeline can be manually run or is automatically triggered whenever one 
 # of the following conditions is true:
@@ -116,10 +122,12 @@ stages:
     dependsOn: []
     jobs:
 
-      - job: danger
+      - job: myrepo
         pool:
           vmImage: 'ubuntu-latest'      
         steps:
+          - checkout: MyGitHubRepo
+
           - bash: |
               echo "RAI_VAR_GROUP : $RAI_MY_VAR"
               echo "RAI_VAR: $RAI_VAR"
