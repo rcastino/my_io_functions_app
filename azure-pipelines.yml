@@ -38,6 +38,11 @@
 # 
 
 parameters:
+  - name: 'PUBLISH_RELEASE'
+    displayName: 'Publish new release'
+    type: boolean
+    default: false
+
   - name: 'TEST_ENABLE_DEPLOY'
     displayName: 'Deploy in test environment'
     type: boolean
@@ -68,6 +73,7 @@ parameters:
   - name: 'PACKAGE_VERSION'
     displayName: 'Increment versioning for release publishing (if deploying in prod):'
     type: string
+    default: patch
     values:
       - major
       - minor
@@ -79,10 +85,14 @@ variables:
     value: '10.14.2'
   - name: YARN_CACHE_FOLDER
     value: $(Pipeline.Workspace)/.yarn
+
+  - name: DO_MANUAL_PUBLISH_RELEASE
+    value: ${{ parameters.PUBLISH_RELEASE }}  
   - name: DO_MANUAL_TEST_DEPLOY
     value: ${{ parameters.TEST_ENABLE_DEPLOY }}
   - name: DO_MANUAL_PRODUCTION_DEPLOY
     value: ${{ parameters.PRODUCTION_ENABLE_DEPLOY }}
+
   - group: RaiVars 
 
 resources:
