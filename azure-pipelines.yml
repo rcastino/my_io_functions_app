@@ -91,7 +91,7 @@ resources:
   - repository: MyGitHubRepo
     type: github
     name: rcastino/my_io_functions_app
-    endpoint: MyContosoServiceConnection
+    endpoint: GITHUB_SERVICE_CONN
 
 # This pipeline can be manually run or is automatically triggered whenever one 
 # of the following conditions is true:
