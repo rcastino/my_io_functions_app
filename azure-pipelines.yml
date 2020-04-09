@@ -68,7 +68,6 @@ parameters:
   - name: 'PACKAGE_VERSION'
     displayName: 'Increment versioning for release publishing (if deploying in prod):'
     type: string
-    default: patch
     values:
       - major
       - minor
@@ -246,6 +245,59 @@ stages:
           displayName: 'Code coverage'
 
 
+  # P) Publish release.
+  #    - continuos deployment (automatic):
+  #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true
+  #       - the 'latest' tag is pushed
+  #    - manual deployment:
+  #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true
+  - stage: Publish_release
+    condition: 
+      and(
+        succeeded(),
+        and(
+          eq(variables['DO_DEPLOY'], true),
+          or(
+            and(
+              eq(variables['Build.SourceBranch'], 'refs/tags/latest'),
+              ne(variables['Build.Reason'], 'Manual')
+            ),
+            and(
+              eq(variables['DO_MANUAL_PUBLISH_RELEASE'], true),
+              eq(variables['Build.Reason'], 'Manual')
+            )
+          )
+        )
+      )
+    dependsOn:
+      - Build
+      - Test
+    jobs:
+      - job: publish_release
+        steps:
+            # You only need to install dev dependencies to run release-it tool
+          - template: azure-templates/make-build-steps.yml
+            parameters:
+              make: install_dependencies
+          
+            # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
+            # Note. The git commands are run only to set the appropriate missing configurations
+            # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
+          - bash: |
+              git checkout $GIT_SOURCE_BRANCH_NAME
+              git checkout -B $GIT_SOURCE_BRANCH_NAME $GIT_SOURCE_COMMIT
+              git config user.name "devops-pipeline"
+              git config --global user.email "devops-pipeline@noreply.github.com"
+              yarn release-it $PACKAGE_VERSION --ci
+            env:
+              GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
+              GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
+              GITHUB_TOKEN: '$(GITHUB_TOKEN)'
+              PACKAGE_VERSION: '$(PACKAGE_VERSION)'
+            displayName: 'release-it'
+
+
+
   # C) Deploy to TEST environment if the following conditions apply:
   #    - continuos deployment (automatic):
   #       - $DO_DEPLOY == true and TEST_ENABLE_DEPLOY == true
@@ -309,8 +361,7 @@ stages:
         )
       )
     dependsOn:
-      - Build
-      - Test
+      - Publish_release
     jobs:
       - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
         steps:
