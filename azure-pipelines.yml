@@ -305,7 +305,7 @@ stages:
               GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
               GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
               GITHUB_TOKEN: '$(GITHUB_TOKEN)'
-              PACKAGE_VERSION: '$(PACKAGE_VERSION)'
+              PACKAGE_VERSION: '${{ parameters.PUBLISH_RELEASE }}'
             displayName: 'release-it'
 
 
