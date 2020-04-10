@@ -93,8 +93,8 @@ variables:
   - name: DO_MANUAL_PRODUCTION_DEPLOY
     value: ${{ parameters.PRODUCTION_ENABLE_DEPLOY }}
 
-  - group: RaiVars 
-  - template: azure-templates/config-variables.yml
+  #- group: RaiVars 
+  #- template: azure-templates/config-variables.yml
 
 resources:
   repositories:
@@ -137,6 +137,11 @@ stages:
           vmImage: 'ubuntu-latest'      
         steps:
           - checkout: MyGitHubRepo
+
+          - script: echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]v2.8.0"
+            name: setvarStep
+          - script: echo $(setvarStep.myOutputVar)
+            name: echovar
 
           - bash: |
               echo "RAI_VAR_GROUP : $RAI_MY_VAR"
@@ -182,6 +187,25 @@ stages:
             env:
               DANGER_GITHUB_API_TOKEN: '$(DANGER_GITHUB_API_TOKEN)'
             displayName: 'Danger CI'
+
+
+      - job: myrepoB
+        dependsOn: myrepo
+        pool:
+          vmImage: 'ubuntu-16.04'
+        variables:
+          GIT_TAG_VERSION: $[ dependencies.myrepo.outputs['setvarStep.myOutputVar'] ]  
+                                              
+        steps:
+        - script: echo $(GIT_TAG_VERSION)
+          name: echovar
+
+        - bash: | 
+            echo $(GIT_TAG_VERSION)
+            echo '$(GIT_TAG_VERSION)'
+            echo "$(GIT_TAG_VERSION)"
+            echo $GIT_TAG_VERSION
+          name: echovar2
 
 
   # A) Build and code validation
