@@ -94,7 +94,7 @@ variables:
     value: ${{ parameters.PRODUCTION_ENABLE_DEPLOY }}
 
   - group: RaiVars 
-  - template: config-variables.yml
+  - template: azure-templates/config-variables.yml
 
 resources:
   repositories:
