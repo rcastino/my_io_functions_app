@@ -94,6 +94,7 @@ variables:
     value: ${{ parameters.PRODUCTION_ENABLE_DEPLOY }}
 
   - group: RaiVars 
+  - template: config-variables.yml
 
 resources:
   repositories:
@@ -145,6 +146,8 @@ stages:
               echo "$TEST_FUNCTION_APP_NAME"
               echo "BUILD_SOURCE: $BUILD_SOURCE"
               echo "PACKAGE_VERSION: $PACKAGE_VERSION"
+              echo "CACHE_VERSION_ID: $CACHE_VERSION_ID"
+              echo "vmImage: $VM_IMAGE"
             env:
               RAI_VAR: '$(RAI_VAR)'
               BUILD_REP_NAME: '$(Build.Repository.Name)'
@@ -153,6 +156,8 @@ stages:
               RAI_MY_VAR: $(RAI_MY_VAR)
               BUILD_SOURCE: $(Build.SourceBranch)
               PACKAGE_VERSION: '${{ parameters.PACKAGE_VERSION }}'
+              CACHE_VERSION_ID: $(CACHE_VERSION_ID)
+              VM_IMAGE: $(vmImage)
             displayName: 'Print ENV'
 
 
