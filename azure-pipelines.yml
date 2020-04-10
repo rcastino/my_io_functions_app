@@ -44,7 +44,7 @@ parameters:
     default: false
 
   - name: 'PACKAGE_VERSION'
-    displayName: 'Increment versioning for release publishing (if deploying in prod):'
+    displayName: 'increment package versioning:'
     type: string
     default: patch
     values:
@@ -52,7 +52,7 @@ parameters:
       - minor
       - patch
       - pre*
-      
+
   - name: 'TEST_ENABLE_DEPLOY'
     displayName: 'Deploy in test environment'
     type: boolean
