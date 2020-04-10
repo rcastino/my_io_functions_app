@@ -44,7 +44,7 @@ parameters:
     default: false
 
   - name: 'PACKAGE_VERSION'
-    displayName: 'increment package versioning:'
+    displayName: 'increment package versioning (if publishing release):'
     type: string
     default: patch
     values:
