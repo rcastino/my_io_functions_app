@@ -177,7 +177,7 @@ stages:
 
             
           - script: echo $(setvarStep.myOutputVar)
-            name: echovar   
+            name: echovar1   
 
           - task: GitHubRelease@1
             condition: false
