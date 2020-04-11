@@ -214,6 +214,7 @@ stages:
 
   - stage: Raimondo2
     dependsOn: Raimondo
+    condition: false
     jobs:
       - job: myrepoC2
         pool:
