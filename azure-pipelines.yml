@@ -214,9 +214,9 @@ stages:
 
   - stage: Raimondo2
     dependsOn: Raimondo
-    condition: false
     jobs:
-      - job: myrepoC2
+      - job: make_release
+        condition: false
         pool:
           vmImage: 'ubuntu-16.04'
                                               
