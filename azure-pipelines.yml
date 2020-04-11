@@ -400,7 +400,7 @@ stages:
         )
       )
     dependsOn:
-      - Release
+      - Check_release
     jobs:
       - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
         steps:
