@@ -43,7 +43,7 @@ parameters:
     type: boolean
     default: false
 
-  - name: 'PACKAGE_VERSION'
+  - name: 'PACKAGE_INCREMENT_VERSION'
     displayName: 'increment package versioning (if publishing release):'
     type: string
     default: patch
@@ -153,7 +153,7 @@ stages:
               echo "BUILD_SOURCE_VER: $BUILD_SOURCE_VER"
               echo "$TEST_FUNCTION_APP_NAME"
               echo "BUILD_SOURCE: $BUILD_SOURCE"
-              echo "PACKAGE_VERSION: $PACKAGE_VERSION"
+              echo "PACKAGE_INCREMENT_VERSION: $PACKAGE_INCREMENT_VERSION"
               echo "CACHE_VERSION_ID: $CACHE_VERSION_ID"
               echo "vmImage: $VM_IMAGE"
             env:
@@ -163,7 +163,7 @@ stages:
               TEST_FUNCTION_APP_NAME: $(TEST_FUNCTION_APP_NAME)
               RAI_MY_VAR: $(RAI_MY_VAR)
               BUILD_SOURCE: $(Build.SourceBranch)
-              PACKAGE_VERSION: '${{ parameters.PACKAGE_VERSION }}'
+              PACKAGE_INCREMENT_VERSION: '${{ parameters.PACKAGE_INCREMENT_VERSION }}'
               CACHE_VERSION_ID: $(CACHE_VERSION_ID)
               VM_IMAGE: $(vmImage)
             displayName: 'Print ENV'
@@ -314,12 +314,12 @@ stages:
 
 
   # P) Create a new version and publish the corresponding release to GitHub.
-  #    - continuos deployment (automatic):
+  #    - continuous deployment (automatic):
   #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true
   #       - the 'latest' tag is pushed
   #    - manual deployment:
   #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true
-  - stage: Publish_release
+  - stage: Release
     pool:
       vmImage: 'ubuntu-latest'
     condition: 
@@ -348,16 +348,9 @@ stages:
           vmImage: 'ubuntu-latest'
         steps:
             # You only need to install dev dependencies to run release-it tool
-          - template: azure-templates/make-build-steps.yml
-            parameters:
-              make: install_dependencies
-          - task: DownloadGitHubRelease@0
-            inputs:
-              connection: 'GITHUB_SERVICE_CONN'
-              userRepository: 'rcastino/my_io_functions_app'
-              defaultVersionType: 'specificTag'
-              version: 'v2.8.0'
-              downloadPath: '$(System.ArtifactsDirectory)'
+            #- template: azure-templates/make-build-steps.yml
+            #parameters:
+            #  make: install_dependencies
 
             # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
             # Note. The git commands are run only to set the appropriate missing configurations
@@ -367,12 +360,12 @@ stages:
               git checkout -B $GIT_SOURCE_BRANCH_NAME $GIT_SOURCE_COMMIT
               git config user.name "devops-pipeline"
               git config --global user.email "devops-pipeline@noreply.github.com"
-              yarn release-it $PACKAGE_VERSION --ci
+              npx release-it $PACKAGE_INCREMENT_VERSION --ci
             env:
               GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
               GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
               GITHUB_TOKEN: '$(GITHUB_TOKEN)'
-              PACKAGE_VERSION: '${{ parameters.PACKAGE_VERSION }}'
+              PACKAGE_INCREMENT_VERSION: '${{ parameters.PACKAGE_INCREMENT_VERSION }}'
             displayName: 'release-it'
 
             # To make new version available to future jobs, you must set a multi-job output 
