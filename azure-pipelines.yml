@@ -168,7 +168,16 @@ stages:
               VM_IMAGE: $(vmImage)
             displayName: 'Print ENV'
 
+            # To make new version available to future jobs, you must set a multi-job output 
+            # variable with the number extracted from the updated package.json file
+          - bash: |
+              new_pkg_ver=$(node -p "require('./package.json').version")
+              echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]$new_pkg_ver"
+            name: setvarStep
 
+            
+          - script: echo $(setvarStep.myOutputVar)
+            name: echovar   
 
           - task: GitHubRelease@1
             condition: false
@@ -313,15 +322,66 @@ stages:
           displayName: 'Code coverage'
 
 
-  # P) Create a new version and publish the corresponding release to GitHub.
+  # C) If required create a new version and publish the corresponding release to GitHub.
   #    - continuous deployment (automatic):
   #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true
   #       - the 'latest' tag is pushed
   #    - manual deployment:
   #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true
-  - stage: Release
+  - stage: Check_release
     pool:
       vmImage: 'ubuntu-latest'
+    dependsOn:
+      - Build
+      - Test
+    jobs:
+      - job: publish_release
+        condition: 
+          and(
+            succeeded(),
+            and(
+              eq(variables['DO_DEPLOY'], true),
+              or(
+                and(
+                  eq(variables['Build.SourceBranch'], 'refs/tags/latest'),
+                  ne(variables['Build.Reason'], 'Manual')
+                ),
+                and(
+                  eq(variables['DO_MANUAL_PUBLISH_RELEASE'], true),
+                  eq(variables['Build.Reason'], 'Manual')
+                )
+              )
+            )
+          )
+        steps:
+          - checkout: self
+            persistCredentials: true
+            displayName: 'Checkout'
+
+            # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
+            # Note. The git commands are run only to set the appropriate missing configurations
+            # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
+          - bash: |
+              git checkout $GIT_SOURCE_BRANCH_NAME
+              git checkout -B $GIT_SOURCE_BRANCH_NAME $GIT_SOURCE_COMMIT
+              git config --global user.name "devops-pipeline"
+              git config --global user.email "devops-pipeline@noreply.github.com"
+              npx release-it $PACKAGE_INCREMENT_VERSION --ci
+            env:
+              GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
+              GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
+              GITHUB_TOKEN: '$(GITHUB_TOKEN)'
+              PACKAGE_INCREMENT_VERSION: '${{ parameters.PACKAGE_INCREMENT_VERSION }}'
+            displayName: 'release-it'
+
+
+  # D) Deploy to PRODUCTION environment if one of the following conditions apply:
+  #    - continuos deployment (automatic):
+  #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
+  #       - the 'latest' tag is pushed 
+  #    - manual deployment:
+  #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
+  - stage: Deploy_production
     condition: 
       and(
         succeeded(),
@@ -333,52 +393,48 @@ stages:
               ne(variables['Build.Reason'], 'Manual')
             ),
             and(
-              eq(variables['DO_MANUAL_PUBLISH_RELEASE'], true),
+              eq(variables['DO_MANUAL_PRODUCTION_DEPLOY'], true),
               eq(variables['Build.Reason'], 'Manual')
             )
           )
         )
       )
     dependsOn:
-      - Build
-      - Test
+      - Release
     jobs:
-      - job: publish_release
-        pool:
-          vmImage: 'ubuntu-latest'
+      - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
         steps:
-            # You only need to install dev dependencies to run release-it tool
-            #- template: azure-templates/make-build-steps.yml
-            #parameters:
-            #  make: install_dependencies
+        - checkout: git://rcastino/my_io_functions_app@refs/tags/v2.8.0 
+          persistCredentials: true
+          displayName: 'Checkout tag'          
 
-            # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
-            # Note. The git commands are run only to set the appropriate missing configurations
-            # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
-          - bash: |
-              git checkout $GIT_SOURCE_BRANCH_NAME
-              git checkout -B $GIT_SOURCE_BRANCH_NAME $GIT_SOURCE_COMMIT
-              git config user.name "devops-pipeline"
-              git config --global user.email "devops-pipeline@noreply.github.com"
-              npx release-it $PACKAGE_INCREMENT_VERSION --ci
-            env:
-              GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
-              GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
-              GITHUB_TOKEN: '$(GITHUB_TOKEN)'
-              PACKAGE_INCREMENT_VERSION: '${{ parameters.PACKAGE_INCREMENT_VERSION }}'
-            displayName: 'release-it'
+          # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
+          # Note. The git commands are run only to set the appropriate missing configurations
+          # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
+        - bash: |
+            git checkout build_$BUILD_ID
+            git checkout $GIT_SOURCE_BRANCH_NAME
+            git checkout -B $GIT_SOURCE_BRANCH_NAME $GIT_SOURCE_COMMIT
+            git config --global user.name "devops-pipeline"
+            git config --global user.email "devops-pipeline@noreply.github.com"
+            npx release-it $PACKAGE_INCREMENT_VERSION --ci
+          env:
+            BUILD_ID: '$(Build.BuildId)'
+            GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
+            GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
+            GITHUB_TOKEN: '$(GITHUB_TOKEN)'
+            PACKAGE_INCREMENT_VERSION: '${{ parameters.PACKAGE_INCREMENT_VERSION }}'
+          condition: 
 
-            # To make new version available to future jobs, you must set a multi-job output 
-            # variable with the number extracted from the updated package.json file
-          - bash: |
-              new_pkg_ver=$(node -p "require('./package.json').version")
-              echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]$new_pkg_ver"
-            name: setvarStep
+          displayName: 'release-it'
+      
 
-            
-          - script: echo $(setvarStep.myOutputVar)
-            name: echovar          
-
+        - template: azure-templates/deploy-steps.yml
+          parameters:
+            deployType: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
+            azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
+            resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
+            appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
 
 
   # C) Deploy to TEST environment if the following conditions apply:
@@ -418,39 +474,3 @@ stages:
             resourceGroupName: '$(TEST_RESOURCE_GROUP_NAME)'
             appName: '$(TEST_FUNCTION_APP_NAME)'
 
-
-  # D) Deploy to PRODUCTION environment if one of the following conditions apply:
-  #    - continuos deployment (automatic):
-  #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
-  #       - the 'latest' tag is pushed 
-  #    - manual deployment:
-  #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
-  - stage: Deploy_production
-    condition: 
-      and(
-        succeeded(),
-        and(
-          eq(variables['DO_DEPLOY'], true),
-          or(
-            and(
-              eq(variables['Build.SourceBranch'], 'refs/tags/latest'),
-              ne(variables['Build.Reason'], 'Manual')
-            ),
-            and(
-              eq(variables['DO_MANUAL_PRODUCTION_DEPLOY'], true),
-              eq(variables['Build.Reason'], 'Manual')
-            )
-          )
-        )
-      )
-    dependsOn:
-      - Release
-    jobs:
-      - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
-        steps:
-        - template: azure-templates/deploy-steps.yml
-          parameters:
-            deployType: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
-            azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
-            resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
-            appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
