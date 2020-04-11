@@ -404,7 +404,7 @@ stages:
     jobs:
       - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
         steps:
-        - checkout: git://rcastino/my_io_functions_app@refs/tags/v2.8.0 
+        - checkout: git://my_io_slot_project/my_io_functions_app@refs/tags/v2.8.0 
           persistCredentials: true
           displayName: 'Checkout tag'          
 
