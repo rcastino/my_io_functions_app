@@ -215,8 +215,7 @@ stages:
   - stage: Raimondo2
     dependsOn: Raimondo
     jobs:
-      - job: myrepoC
-        dependsOn: myrepoB
+      - job: myrepoC2
         pool:
           vmImage: 'ubuntu-16.04'
                                               
@@ -227,7 +226,7 @@ stages:
   - stage: Raimondo3
     dependsOn: Raimondo2
     jobs:
-      - job: myrepoC
+      - job: myrepoC3
         pool:
           vmImage: 'ubuntu-16.04'
                                               
