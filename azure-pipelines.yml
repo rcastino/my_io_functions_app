@@ -327,7 +327,7 @@ stages:
   #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true
   #       - the 'latest' tag is pushed
   #    - manual deployment:
-  #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true
+  #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true 
   - stage: Check_release
     pool:
       vmImage: 'ubuntu-latest'
