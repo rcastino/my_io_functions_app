@@ -210,6 +210,15 @@ stages:
             echo $GIT_TAG_VERSION
           name: echovar2
 
+      - job: myrepoC
+        dependsOn: myrepoB
+        pool:
+          vmImage: 'ubuntu-16.04'
+                                              
+        steps:
+        - script: echo "CIAO"
+          name: echovar2
+
 
   # A) Build and code validation
   - stage: Build
@@ -320,12 +329,21 @@ stages:
       - Test
     jobs:
       - job: publish_release
+        pool:
+          vmImage: 'ubuntu-latest'
         steps:
             # You only need to install dev dependencies to run release-it tool
           - template: azure-templates/make-build-steps.yml
             parameters:
               make: install_dependencies
-          
+          - task: DownloadGitHubRelease@0
+            inputs:
+              connection: 'GITHUB_SERVICE_CONN'
+              userRepository: 'rcastino/my_io_functions_app'
+              defaultVersionType: 'specificTag'
+              version: 'v2.8.0'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
             # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
             # Note. The git commands are run only to set the appropriate missing configurations
             # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
@@ -341,6 +359,17 @@ stages:
               GITHUB_TOKEN: '$(GITHUB_TOKEN)'
               PACKAGE_VERSION: '${{ parameters.PACKAGE_VERSION }}'
             displayName: 'release-it'
+
+            # To make new version available to future jobs, you must set a multi-job output 
+            # variable with the number extracted from the updated package.json file
+          - bash: |
+              new_pkg_ver=$(node -p "require('./package.json').version")
+              echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]$new_pkg_ver"
+            name: setvarStep
+
+            
+          - script: echo $(setvarStep.myOutputVar)
+            name: echovar          
 
 
 
