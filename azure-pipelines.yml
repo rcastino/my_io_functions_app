@@ -367,6 +367,7 @@ stages:
               git config --global user.name "devops-pipeline"
               git config --global user.email "devops-pipeline@noreply.github.com"
               npx release-it $PACKAGE_INCREMENT_VERSION --ci
+              git push -f origin HEAD:refs/tags/build_$(build.buildNumber)
             env:
               GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
               GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
