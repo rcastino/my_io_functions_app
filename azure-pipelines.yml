@@ -211,15 +211,29 @@ stages:
             echo $GIT_TAG_VERSION
           name: echovar2
 
+
+  - stage: Raimondo2
+    dependsOn: Raimondo
+    jobs:
       - job: myrepoC
         dependsOn: myrepoB
         pool:
           vmImage: 'ubuntu-16.04'
                                               
         steps:
-        - script: echo "CIAO"
+        - script: echo "CIAO - Raimondo2"
           name: echovar2
 
+  - stage: Raimondo3
+    dependsOn: Raimondo2
+    jobs:
+      - job: myrepoC
+        pool:
+          vmImage: 'ubuntu-16.04'
+                                              
+        steps:
+        - script: echo "CIAO - Raimondo3"
+          name: echovar2
 
   # A) Build and code validation
   - stage: Build
