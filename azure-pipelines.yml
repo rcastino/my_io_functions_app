@@ -444,7 +444,7 @@ stages:
         )
       )
     dependsOn:
-      - Publish_release
+      - Release
     jobs:
       - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
         steps:
