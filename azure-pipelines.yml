@@ -414,17 +414,11 @@ stages:
           # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
         - bash: |
             git checkout build_$BUILD_ID
-            git checkout $GIT_SOURCE_BRANCH_NAME
-            git checkout -B $GIT_SOURCE_BRANCH_NAME $GIT_SOURCE_COMMIT
-            git config --global user.name "devops-pipeline"
-            git config --global user.email "devops-pipeline@noreply.github.com"
-            npx release-it $PACKAGE_INCREMENT_VERSION --ci
           env:
-            BUILD_ID: '$(Build.BuildId)'
+            BUILD_ID: '$(build.buildNumber)'
             GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
             GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
             GITHUB_TOKEN: '$(GITHUB_TOKEN)'
-            PACKAGE_INCREMENT_VERSION: '${{ parameters.PACKAGE_INCREMENT_VERSION }}'
           condition: 
 
           displayName: 'release-it'
