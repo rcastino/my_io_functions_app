@@ -420,6 +420,7 @@ stages:
             git config --global user.email "devops-pipeline@noreply.github.com"
 
             echo $GIT_TAG
+            git fetch -t
             git checkout $GIT_TAG || echo 'No release available for this build'
           env:
             GIT_TAG: 'refs/tags/build_$(build.buildNumber)'
