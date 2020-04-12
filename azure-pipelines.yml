@@ -367,7 +367,6 @@ stages:
               git config --global user.name "devops-pipeline"
               git config --global user.email "devops-pipeline@noreply.github.com"
               npx release-it $PACKAGE_INCREMENT_VERSION --ci
-              git pull
               git push -f origin HEAD:refs/tags/build_$(build.buildNumber)
             env:
               GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
@@ -411,24 +410,19 @@ stages:
             deployType: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
             azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
             resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
-            appName: '$(PRODUCTION_FUNCTION_APP_NAME)'      
+            appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
 
-          # If there is an available tag created in the promote stage, check out that
-          # code from GitHub; otherwise the self repository is checked out
+          # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
+          # Note. The git commands are run only to set the appropriate missing configurations
+          # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
         - bash: |
-            echo "Checkout latest tag $GIT_TAG"
-            #git checkout $GIT_TAG || echo "Tag/release not found for this build"
+            git push -f origin HEAD:refs/tags/deploy_$(build.buildNumber)
           env:
-            GIT_TAG: 'refs/tags/build_$(build.buildNumber)'
-          displayName: 'Checkout latest release'
+            GITHUB_TOKEN: '$(GITHUB_TOKEN)'
+          displayName: 'create deploy tag'
 
 
-      
-
-
-
-
-  # C) Deploy to TEST environment if the following conditions apply:
+  # E) Deploy to TEST environment if the following conditions apply:
   #    - continuos deployment (automatic):
   #       - $DO_DEPLOY == true and TEST_ENABLE_DEPLOY == true
   #       - there is a push on 'master' branch 
@@ -453,8 +447,7 @@ stages:
         )
       )    
     dependsOn:
-      - Build
-      - Test
+      - Promote_release
     jobs:
       - job: '${{ parameters.TEST_DEPLOY_TYPE }}'
         steps:
