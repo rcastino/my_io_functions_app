@@ -17,7 +17,17 @@ steps:
 - checkout: self
   persistCredentials: true
   displayName: 'Checkout'
-      
+   
+  # If there is an available tag created in the promote stage, check out that
+  # code from GitHub; otherwise the self repository is checked out
+- ${{ if eq(parameters.make, 'predeploy_build') }}:  
+  - bash: |
+      echo "Checkout latest tag $GIT_TAG"
+      git checkout $GIT_TAG || echo "Tag/release not found for this build"
+    env:
+      GIT_TAG: 'refs/tags/build_$(build.buildNumber)'
+    displayName: 'Checkout latest release'   
+  
 - task: Cache@2
   inputs:
     key: 'yarn-${{ parameters.cache_version_id }} | "$(Agent.OS)" | yarn.lock'
