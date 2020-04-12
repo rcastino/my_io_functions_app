@@ -413,13 +413,13 @@ stages:
           # Note. The git commands are run only to set the appropriate missing configurations
           # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
         - bash: |
-            echo $GIT_TAG
-            git checkout $GIT_TAG || echo 'No release available for this build'
+            git checkout $GIT_SOURCE_BRANCH_NAME
             git checkout -B $GIT_SOURCE_BRANCH_NAME $GIT_SOURCE_COMMIT
             git config --global user.name "devops-pipeline"
             git config --global user.email "devops-pipeline@noreply.github.com"
-            npx release-it $PACKAGE_INCREMENT_VERSION --ci
-            git push -f origin HEAD:refs/tags/build_$(build.buildNumber)
+
+            echo $GIT_TAG
+            git checkout $GIT_TAG || echo 'No release available for this build'
           env:
             GIT_TAG: 'refs/tags/build_$(build.buildNumber)'
             GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
