@@ -406,16 +406,13 @@ stages:
     jobs:
       - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
         steps:
-        - checkout: self 
-          persistCredentials: true
-          displayName: 'Checkout'          
+      
 
-          # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
-          # Note. The git commands are run only to set the appropriate missing configurations
-          # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
+          # If there is an available tag created in the promote stage, check out that
+          # code from GitHub; otherwise the self repository is checked out
         - bash: |
-            echo 'Checkout latest tag $GIT_TAG'
-            git checkout $GIT_TAG || echo 'Tag/release not found for this build'
+            echo "Checkout latest tag $GIT_TAG"
+            git checkout $GIT_TAG || echo "Tag/release not found for this build"
           env:
             GIT_TAG: 'refs/tags/build_$(build.buildNumber)'
           displayName: 'Checkout latest release'
