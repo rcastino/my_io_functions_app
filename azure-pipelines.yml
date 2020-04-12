@@ -407,21 +407,16 @@ stages:
         steps:
         - checkout: self 
           persistCredentials: true
-          displayName: 'Checkout tag'          
+          displayName: 'Checkout'          
 
           # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
           # Note. The git commands are run only to set the appropriate missing configurations
           # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
         - bash: |
-            git checkout build_$BUILD_ID | echo 'No release available for this build'
+            git checkout refs/tags/build_$(build.buildNumber) || echo 'No release available for this build'
           env:
-            BUILD_ID: '$(build.buildNumber)'
-            GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
-            GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
             GITHUB_TOKEN: '$(GITHUB_TOKEN)'
-          condition: 
-
-          displayName: 'release-it'
+          displayName: 'Checkout latest release'
       
 
         - template: azure-templates/deploy-steps.yml
