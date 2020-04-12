@@ -414,13 +414,7 @@ stages:
           # Note. The git commands are run only to set the appropriate missing configurations
           # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
         - bash: |
-            git checkout $GIT_SOURCE_BRANCH_NAME
-            git checkout -B $GIT_SOURCE_BRANCH_NAME $GIT_SOURCE_COMMIT
-            git config --global user.name "devops-pipeline"
-            git config --global user.email "devops-pipeline@noreply.github.com"
-
             echo $GIT_TAG
-            git fetch -t
             git checkout $GIT_TAG || echo 'No release available for this build'
           env:
             GIT_TAG: 'refs/tags/build_$(build.buildNumber)'
