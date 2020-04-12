@@ -328,7 +328,7 @@ stages:
   #       - the 'latest' tag is pushed
   #    - manual deployment:
   #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true 
-  - stage: Check_release
+  - stage: Promote_release
     pool:
       vmImage: 'ubuntu-latest'
     dependsOn:
@@ -402,7 +402,7 @@ stages:
         )
       )
     dependsOn:
-      - Check_release
+      - Promote_release
     jobs:
       - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
         steps:
@@ -414,14 +414,10 @@ stages:
           # Note. The git commands are run only to set the appropriate missing configurations
           # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
         - bash: |
-            echo $GIT_TAG
-            git checkout $GIT_TAG || echo 'No release available for this build'
+            echo 'Checkout latest tag $GIT_TAG'
+            git checkout $GIT_TAG || echo 'Tag/release not found for this build'
           env:
             GIT_TAG: 'refs/tags/build_$(build.buildNumber)'
-            GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
-            GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
-            GITHUB_TOKEN: '$(GITHUB_TOKEN)'
-            PACKAGE_INCREMENT_VERSION: '${{ parameters.PACKAGE_INCREMENT_VERSION }}'
           displayName: 'Checkout latest release'
 
 
