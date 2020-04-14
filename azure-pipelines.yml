@@ -1,5 +1,5 @@
-# Azure DevOps pipeline to build, check source codes, run tests, and deploy. 
-# 
+# Azure DevOps pipeline to build, check source codes, run tests, and deploy.
+#
 # To make Danger JS run on a pull request you need to add the following pipeline 
 # variable and set it with a GitHub access token (scope public_repo); otherwise 
 # set its value to 'skip' without marking it secret: 
@@ -7,9 +7,9 @@
 #
 # Optionally, it is possible to create and publish a new release to GitHub by
 # incrementing the package version, creating a corresponding versioning tag and
-# updating the changelog. To make the release you need to set the following
-# parameters: 
-# - PUBLISH_RELEASE = true
+# updating the changelog. To enable the creation of the release you need to 
+# set the following parameters: 
+# - PUBLISH_RELEASE: true (false by default)
 # - PACKAGE_INCREMENT_VERSION: major | minor | patch (default)
 #
 # To enable the deployment in any environment you need to configure the following 
@@ -17,10 +17,11 @@
 # - DO_DEPLOY = true
 # For manual run only, you also need to set the following additional parameters  
 # based on the environment(s) to update when running the pipeline:
-# - PRODUCTION_ENABLE_DEPLOY = true
-# - TEST_ENABLE_DEPLOY = true
+# - PRODUCTION_ENABLE_DEPLOY: true
+# - TEST_ENABLE_DEPLOY: true
 #
-# The following parameters settings are also used when running the deployment jobs:
+# The following parameters and variables are used to configure the settings for
+# connecting to the environment to deploy and managing the deployment methods:
 # - PRODUCTION_DEPLOY_TYPE:
 #     -- 'deployToStagingSlot' (default)
 #     -- 'deployToProductionSlot'
@@ -61,7 +62,7 @@ parameters:
       - pre*
 
   - name: 'TEST_ENABLE_DEPLOY'
-    displayName: 'Deploy in test environment'
+    displayName: 'Deploy in TEST environment'
     type: boolean
     default: false
 
@@ -74,7 +75,7 @@ parameters:
       - deployToProductionSlot
 
   - name: 'PRODUCTION_ENABLE_DEPLOY'
-    displayName: 'Deploy in production environment'
+    displayName: 'Deploy in PRODUCTION environment'
     type: boolean
     default: false
 
