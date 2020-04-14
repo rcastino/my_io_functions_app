@@ -412,7 +412,7 @@ stages:
             appName: '$(TEST_FUNCTION_APP_NAME)'
 
 
-  # D) Deploy to PRODUCTION environment if one of the following conditions apply:
+  # E) Deploy to PRODUCTION environment if one of the following conditions apply:
   #    - continuos deployment (automatic):
   #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
   #       - the 'latest' tag is pushed 
