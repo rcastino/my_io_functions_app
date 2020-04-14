@@ -444,16 +444,7 @@ stages:
       - Check_release
     jobs:
       - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}_prod'
-        steps:
-          # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
-          # Note. The git commands are run only to set the appropriate missing configurations
-          # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
-        - bash: |
-            git push -f origin HEAD:refs/tags/deployed_$(build.buildNumber)
-          env:
-            GITHUB_TOKEN: '$(GITHUB_TOKEN)'
-          displayName: 'create deploy tag'
-        
+        steps:        
         - template: azure-templates/deploy-steps.yml
           parameters:
             deployType: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
@@ -461,3 +452,9 @@ stages:
             resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
             appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
 
+          # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
+          # Note. The git commands are run only to set the appropriate missing configurations
+          # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
+        - bash: |
+            git push -f origin HEAD:refs/tags/deployed_$(build.buildNumber)
+          displayName: 'create deploy tag'
