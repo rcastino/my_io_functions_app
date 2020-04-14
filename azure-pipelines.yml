@@ -439,6 +439,8 @@ stages:
         )
       )
     dependsOn:
+      - Build
+      - Test
       - Check_release
     jobs:
       - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}_prod'
