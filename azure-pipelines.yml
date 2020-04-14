@@ -368,7 +368,7 @@ stages:
             env:
               GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
               GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
-              GITHUB_TOKEN: '$(GITHUB_TOKEN)'
+              GITHUB_TOKEN_2: '$(GITHUB_TOKEN)'
               PACKAGE_INCREMENT_VERSION: '${{ parameters.PACKAGE_INCREMENT_VERSION }}'
             displayName: 'release-it'
 
@@ -452,9 +452,7 @@ stages:
             resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
             appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
 
-          # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
-          # Note. The git commands are run only to set the appropriate missing configurations
-          # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
+          # Push a tag 'deployed_YYYYMMDD.n' to set this deploy in production
         - bash: |
             git push -f origin HEAD:refs/tags/deployed_$(build.buildNumber)
           displayName: 'create deploy tag'
