@@ -328,28 +328,28 @@ stages:
   #    - manual deployment:
   #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true 
   - stage: Check_release
+    condition: 
+      and(
+        succeeded(),
+        and(
+          eq(variables['DO_DEPLOY'], true),
+          or(
+            and(
+              eq(variables['Build.SourceBranch'], 'refs/tags/latest'),
+              ne(variables['Build.Reason'], 'Manual')
+            ),
+            and(
+              eq(variables['DO_MANUAL_PUBLISH_RELEASE'], true),
+              eq(variables['Build.Reason'], 'Manual')
+            )
+          )
+        )
+      )
     dependsOn:
       - Build
       - Test
     jobs:
       - job: publish_release
-        condition: 
-          and(
-            succeeded(),
-            and(
-              eq(variables['DO_DEPLOY'], true),
-              or(
-                and(
-                  eq(variables['Build.SourceBranch'], 'refs/tags/latest'),
-                  ne(variables['Build.Reason'], 'Manual')
-                ),
-                and(
-                  eq(variables['DO_MANUAL_PUBLISH_RELEASE'], true),
-                  eq(variables['Build.Reason'], 'Manual')
-                )
-              )
-            )
-          )
         steps:
           - checkout: self
             persistCredentials: true
