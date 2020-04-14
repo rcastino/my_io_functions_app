@@ -321,9 +321,10 @@ stages:
           displayName: 'Code coverage'
 
 
-  # C) If required create a new version and publish the corresponding release to GitHub.
+  # C) Check if it is requested to produce a new version and publish the corresponding 
+  # release/tag to GitHub. The publishing is performed if the following conditions apply: 
   #    - continuous deployment (automatic):
-  #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true
+  #       - $DO_DEPLOY == true
   #       - the 'latest' tag is pushed
   #    - manual deployment:
   #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true 
@@ -364,13 +365,17 @@ stages:
               git config --global user.name "devops-pipeline"
               git config --global user.email "devops-pipeline@noreply.github.com"
               npx release-it $PACKAGE_INCREMENT_VERSION --ci
-              git push -f origin HEAD:refs/tags/build_$(build.buildNumber)
             env:
               GIT_SOURCE_BRANCH_NAME: '$(Build.SourceBranchName)'
               GIT_SOURCE_COMMIT: '$(Build.SourceVersion)'
-              GITHUB_TOKEN_2: '$(GITHUB_TOKEN)'
+              GITHUB_TOKEN: '$(GITHUB_TOKEN)'
               PACKAGE_INCREMENT_VERSION: '${{ parameters.PACKAGE_INCREMENT_VERSION }}'
             displayName: 'release-it'
+
+            # Push tag 'build_YYYYMMDD.n' to tag this level of code in GitHub
+          - bash: |
+              git push -f origin HEAD:refs/tags/build_$(build.buildNumber)
+            displayName: 'create build tag'
 
 
   # D) Deploy to TEST environment if the following conditions apply:
@@ -439,8 +444,6 @@ stages:
         )
       )
     dependsOn:
-      - Build
-      - Test
       - Check_release
     jobs:
       - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}_prod'
