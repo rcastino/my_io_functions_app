@@ -5,15 +5,23 @@
 # set its value to 'skip' without marking it secret: 
 # - DANGER_GITHUB_API_TOKEN
 #
+# Optionally, it is possible to create and publish a new release to GitHub by
+# incrementing the package version, creating a corresponding versioning tag and
+# updating the changelog. To enable the creation of the release you need to 
+# set the following parameters: 
+# - PUBLISH_RELEASE: true (false by default)
+# - PACKAGE_INCREMENT_VERSION: major | minor | patch (default)
+#
 # To enable the deployment in any environment you need to configure the following 
 # global variable otherwise all the deployment jobs will be always skipped:
 # - DO_DEPLOY = true
 # For manual run only, you also need to set the following additional parameters  
 # based on the environment(s) to update when running the pipeline:
-# - PRODUCTION_ENABLE_DEPLOY = true
-# - TEST_ENABLE_DEPLOY = true
+# - PRODUCTION_ENABLE_DEPLOY: true
+# - TEST_ENABLE_DEPLOY: true
 #
-# The following parameters settings are also used when running the deployment jobs:
+# The following parameters and variables are used to configure the settings for
+# connecting to the environment to deploy and managing the deployment methods:
 # - PRODUCTION_DEPLOY_TYPE:
 #     -- 'deployToStagingSlot' (default)
 #     -- 'deployToProductionSlot'
@@ -54,7 +62,7 @@ parameters:
       - pre*
 
   - name: 'TEST_ENABLE_DEPLOY'
-    displayName: 'Deploy in test environment'
+    displayName: 'Deploy in TEST environment'
     type: boolean
     default: false
 
@@ -67,7 +75,7 @@ parameters:
       - deployToProductionSlot
 
   - name: 'PRODUCTION_ENABLE_DEPLOY'
-    displayName: 'Deploy in production environment'
+    displayName: 'Deploy in PRODUCTION environment'
     type: boolean
     default: false
 
@@ -105,8 +113,8 @@ resources:
     endpoint: GITHUB_SERVICE_CONN
 
 # This pipeline can be manually run or is automatically triggered whenever one 
-# of the following conditions is true:
-# - a push is made to any branch in the repository (not only 'master')
+# of the following event occurs:
+# - a push is made to any branch ('master' could be excluded in pipeline filters)
 # - a pull request is created
 # - a tag named 'latest' is pushed
 # Note. In the last case, the tag can be (re-)created using the Git CLI, e.g.:
@@ -116,7 +124,7 @@ trigger:
     include:
       - '*'
       - refs/tags/latest
-      - releases/*
+
 
 # This pipeline has been implemented to be run on hosted agent pools based both
 # on 'windows' and 'ubuntu' virtual machine images and using the scripts defined
@@ -376,59 +384,15 @@ stages:
             displayName: 'release-it'
 
 
-  # D) Deploy to PRODUCTION environment if one of the following conditions apply:
-  #    - continuos deployment (automatic):
-  #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
-  #       - the 'latest' tag is pushed 
-  #    - manual deployment:
-  #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
-  - stage: Deploy_production
-    condition: 
-      and(
-        succeeded(),
-        and(
-          eq(variables['DO_DEPLOY'], true),
-          or(
-            and(
-              eq(variables['Build.SourceBranch'], 'refs/tags/latest'),
-              ne(variables['Build.Reason'], 'Manual')
-            ),
-            and(
-              eq(variables['DO_MANUAL_PRODUCTION_DEPLOY'], true),
-              eq(variables['Build.Reason'], 'Manual')
-            )
-          )
-        )
-      )
-    dependsOn:
-      - Promote_release
-    jobs:
-      - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
-        steps:
-        - template: azure-templates/deploy-steps.yml
-          parameters:
-            deployType: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
-            azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
-            resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
-            appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
-
-          # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
-          # Note. The git commands are run only to set the appropriate missing configurations
-          # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
-        - bash: |
-            git push -f origin HEAD:refs/tags/deploy_$(build.buildNumber)
-          env:
-            GITHUB_TOKEN: '$(GITHUB_TOKEN)'
-          displayName: 'create deploy tag'
-
-
-  # E) Deploy to TEST environment if the following conditions apply:
+  # D) Deploy to TEST environment if the following conditions apply:
   #    - continuos deployment (automatic):
   #       - $DO_DEPLOY == true and TEST_ENABLE_DEPLOY == true
   #       - there is a push on 'master' branch 
   #    - manual deployment:
   #       - $DO_DEPLOY == true and TEST_ENABLE_DEPLOY == true
   - stage: Deploy_test
+    pool:
+      vmImage: 'windows-2019'
     condition: 
       and(
         succeeded(),
@@ -449,7 +413,7 @@ stages:
     dependsOn:
       - Promote_release
     jobs:
-      - job: '${{ parameters.TEST_DEPLOY_TYPE }}'
+      - job: '${{ parameters.TEST_DEPLOY_TYPE }}_test'
         steps:
         - template: azure-templates/deploy-steps.yml
           parameters:
@@ -457,3 +421,51 @@ stages:
             azureSubscription: '$(TEST_AZURE_SUBSCRIPTION)'
             resourceGroupName: '$(TEST_RESOURCE_GROUP_NAME)'
             appName: '$(TEST_FUNCTION_APP_NAME)'
+
+
+  # D) Deploy to PRODUCTION environment if one of the following conditions apply:
+  #    - continuos deployment (automatic):
+  #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
+  #       - the 'latest' tag is pushed 
+  #    - manual deployment:
+  #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
+  - stage: Deploy_production
+    pool:
+      vmImage: 'windows-2019'
+    condition: 
+      and(
+        succeeded(),
+        and(
+          eq(variables['DO_DEPLOY'], true),
+          or(
+            and(
+              eq(variables['Build.SourceBranch'], 'refs/tags/latest'),
+              ne(variables['Build.Reason'], 'Manual')
+            ),
+            and(
+              eq(variables['DO_MANUAL_PRODUCTION_DEPLOY'], true),
+              eq(variables['Build.Reason'], 'Manual')
+            )
+          )
+        )
+      )
+    dependsOn:
+      - Promote_release
+    jobs:
+      - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}_prod'
+        steps:
+        - template: azure-templates/deploy-steps.yml
+          parameters:
+            deployType: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
+            azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
+            resourceGroupName: '$(PRODUCTION_RESOURCE_GROUP_NAME)'
+            appName: '$(PRODUCTION_FUNCTION_APP_NAME)'
+
+          # Environment variable "GITHUB_TOKEN" is required for creating GitHub release.
+          # Note. The git commands are run only to set the appropriate missing configurations
+          # (e.g. HEAD detached, upstream branch not set, username and email missing, etc.)! 
+        - bash: |
+            git push -f origin HEAD:refs/tags/deploy_$(build.buildNumber)
+          env:
+            GITHUB_TOKEN: '$(GITHUB_TOKEN)'
+          displayName: 'create deploy tag'
