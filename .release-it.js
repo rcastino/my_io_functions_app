@@ -6,7 +6,8 @@ module.exports = {
     tagName: "v${version}",
     commitMessage: "chore: release ${version}",
     changelog:
-      "npx auto-changelog --config .auto-changelog.json --stdout --commit-limit false --unreleased --template preview.hbs"
+      "npx auto-changelog --config .auto-changelog.json --stdout --commit-limit false --unreleased --template preview.hbs",
+    pushArgs: "-d"
   },
   hooks: {
     "before:release": [
