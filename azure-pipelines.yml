@@ -1,4 +1,4 @@
-# Azure DevOps pipeline to build, check source codes, run tests, and deploy.
+# Azure DevOps pipeline to build, check source codes, run tests, and deploy. 
 #
 # To make Danger JS run on a pull request you need to add the following pipeline 
 # variable and set it with a GitHub access token (scope public_repo); otherwise 
