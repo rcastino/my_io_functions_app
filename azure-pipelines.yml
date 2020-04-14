@@ -59,7 +59,9 @@ parameters:
       - major
       - minor
       - patch
-      - pre*
+      - prepatch
+      - preminor
+      - premajor
 
   - name: 'TEST_ENABLE_DEPLOY'
     displayName: 'Deploy in TEST environment'
