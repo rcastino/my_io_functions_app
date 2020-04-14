@@ -46,7 +46,7 @@
 # 
 
 parameters:
-  - name: PUBLISH_RELEASE
+  - name: 'PUBLISH_RELEASE'
     displayName: 'Publish new release'
     type: boolean
     default: False
