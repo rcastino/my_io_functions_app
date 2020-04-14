@@ -49,7 +49,7 @@ parameters:
   - name: 'PUBLISH_RELEASE'
     displayName: 'Publish new release'
     type: boolean
-    default: False
+    default: false
 
   - name: 'PACKAGE_INCREMENT_VERSION'
     displayName: 'increment package versioning (if publishing release):'
@@ -327,7 +327,7 @@ stages:
   #       - the 'latest' tag is pushed
   #    - manual deployment:
   #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true 
-  - stage: Promote_release
+  - stage: Check_release
     dependsOn:
       - Build
       - Test
@@ -400,7 +400,7 @@ stages:
         )
       )    
     dependsOn:
-      - Promote_release
+      - Check_release
     jobs:
       - job: '${{ parameters.TEST_DEPLOY_TYPE }}_test'
         steps:
@@ -439,7 +439,7 @@ stages:
         )
       )
     dependsOn:
-      - Promote_release
+      - Check_release
     jobs:
       - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}_prod'
         steps:
