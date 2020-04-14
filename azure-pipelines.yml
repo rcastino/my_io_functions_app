@@ -413,7 +413,7 @@ stages:
     dependsOn:
       - Promote_release
     jobs:
-      - job: '${{ parameters.TEST_DEPLOY_TYPE }}'
+      - job: '${{ parameters.TEST_DEPLOY_TYPE }}_test'
         steps:
         - template: azure-templates/deploy-steps.yml
           parameters:
@@ -423,7 +423,6 @@ stages:
             appName: '$(TEST_FUNCTION_APP_NAME)'
 
 
-
   # D) Deploy to PRODUCTION environment if one of the following conditions apply:
   #    - continuos deployment (automatic):
   #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
@@ -431,6 +430,8 @@ stages:
   #    - manual deployment:
   #       - $DO_DEPLOY == true and PRODUCTION_ENABLE_DEPLOY == true
   - stage: Deploy_production
+    pool:
+      vmImage: 'windows-2019'
     condition: 
       and(
         succeeded(),
@@ -451,7 +452,7 @@ stages:
     dependsOn:
       - Promote_release
     jobs:
-      - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}'
+      - job: '${{ parameters.PRODUCTION_DEPLOY_TYPE }}_prod'
         steps:
         - template: azure-templates/deploy-steps.yml
           parameters:
