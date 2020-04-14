@@ -49,7 +49,7 @@ parameters:
   - name: 'PUBLISH_RELEASE'
     displayName: 'Publish new release'
     type: boolean
-    default: false
+    default: False
 
   - name: 'PACKAGE_INCREMENT_VERSION'
     displayName: 'increment package versioning (if publishing release):'
