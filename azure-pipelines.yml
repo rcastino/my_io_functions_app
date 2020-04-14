@@ -94,16 +94,12 @@ variables:
     value: '10.14.2'
   - name: YARN_CACHE_FOLDER
     value: $(Pipeline.Workspace)/.yarn
-
   - name: DO_MANUAL_PUBLISH_RELEASE
     value: ${{ parameters.PUBLISH_RELEASE }}  
   - name: DO_MANUAL_TEST_DEPLOY
     value: ${{ parameters.TEST_ENABLE_DEPLOY }}
   - name: DO_MANUAL_PRODUCTION_DEPLOY
     value: ${{ parameters.PRODUCTION_ENABLE_DEPLOY }}
-
-  #- group: RaiVars 
-  #- template: azure-templates/config-variables.yml
 
 resources:
   repositories:
@@ -135,122 +131,6 @@ pool:
   vmImage: 'ubuntu-latest'
 
 stages:
-
-  - stage: Raimondo
-
-    dependsOn: []
-    jobs:
-
-      - job: myrepo
-        steps:
-          - checkout: MyGitHubRepo
-
-          - bash: |
-              pkg_ver=$(node -p "require('./package.json').version")
-              echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]$pkg_ver"
-            name: setvarStep
-          - script: echo $(setvarStep.myOutputVar)
-            name: echovar
-
-          - bash: |
-              echo "RAI_VAR_GROUP : $RAI_MY_VAR"
-              echo "RAI_VAR: $RAI_VAR"
-              echo "Build.Repository.Name: $BUILD_REP_NAME"
-              echo "BUILD_SOURCE_VER: $BUILD_SOURCE_VER"
-              echo "$TEST_FUNCTION_APP_NAME"
-              echo "BUILD_SOURCE: $BUILD_SOURCE"
-              echo "PACKAGE_INCREMENT_VERSION: $PACKAGE_INCREMENT_VERSION"
-              echo "CACHE_VERSION_ID: $CACHE_VERSION_ID"
-              echo "vmImage: $VM_IMAGE"
-            env:
-              RAI_VAR: '$(RAI_VAR)'
-              BUILD_REP_NAME: '$(Build.Repository.Name)'
-              BUILD_SOURCE_VER: '$(Build.SourceVersion)'
-              TEST_FUNCTION_APP_NAME: $(TEST_FUNCTION_APP_NAME)
-              RAI_MY_VAR: $(RAI_MY_VAR)
-              BUILD_SOURCE: $(Build.SourceBranch)
-              PACKAGE_INCREMENT_VERSION: '${{ parameters.PACKAGE_INCREMENT_VERSION }}'
-              CACHE_VERSION_ID: $(CACHE_VERSION_ID)
-              VM_IMAGE: $(vmImage)
-            displayName: 'Print ENV'
-
-            # To make new version available to future jobs, you must set a multi-job output 
-            # variable with the number extracted from the updated package.json file
-          - bash: |
-              new_pkg_ver=$(node -p "require('./package.json').version")
-              echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]$new_pkg_ver"
-            name: setvarStep1
-
-            
-          - script: echo $(setvarStep.myOutputVar)
-            name: echovar1   
-
-          - task: GitHubRelease@1
-            condition: false
-            inputs:
-              gitHubConnection: 'release'
-              repositoryName: '$(Build.Repository.Name)'
-              action: 'create'
-              target: '$(Build.SourceVersion)'
-              tagSource: 'userSpecifiedTag'
-              tagPattern: v*
-              title: 'My Release'
-              releaseNotesSource: 'inline'
-              releaseNotesInline: 'By Azure Pipeline'
-              changeLogCompareToRelease: 'lastFullRelease'
-              changeLogType: 'commitBased'
-              
-          - bash: |
-              #yarn danger ci
-            env:
-              DANGER_GITHUB_API_TOKEN: '$(DANGER_GITHUB_API_TOKEN)'
-            displayName: 'Danger CI'
-
-
-      - job: myrepoB
-        dependsOn: myrepo
-        condition: false
-        pool:
-          vmImage: 'ubuntu-16.04'
-        variables:
-          GIT_TAG_VERSION: $[ dependencies.myrepo.outputs['setvarStep.myOutputVar'] ]  
-                                              
-        steps:
-        - script: echo $(GIT_TAG_VERSION)
-          name: echovar
-
-        - bash: | 
-            echo $(GIT_TAG_VERSION)
-            echo '$(GIT_TAG_VERSION)'
-            echo "$(GIT_TAG_VERSION)"
-            echo $GIT_TAG_VERSION
-          name: echovar2
-
-
-  - stage: Raimondo2
-    dependsOn: Raimondo
-    jobs:
-      - job: make_release
-        condition: false
-        pool:
-          vmImage: 'ubuntu-16.04'
-                                              
-        steps:
-        - script: echo "CIAO - Raimondo2"
-          name: echovar2
-
-  - stage: Raimondo3
-    dependsOn: Raimondo2
-    jobs:
-      - job: myrepoC3
-        pool:
-          vmImage: 'ubuntu-16.04'
-                                              
-        steps:
-        - script: echo "CIAO - Raimondo3"
-          name: echovar2
-
-
   # A) Build and code validation
   - stage: Build
     dependsOn: []
