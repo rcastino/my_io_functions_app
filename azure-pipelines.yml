@@ -132,7 +132,7 @@ trigger:
 # runtime, the pipeline is currently configured to use a Windows hosted image for
 # the build and deploy.
 pool:
-  vmImage: 'windows-2019'
+  vmImage: 'ubuntu-latest'
 
 stages:
 
@@ -142,8 +142,6 @@ stages:
     jobs:
 
       - job: myrepo
-        pool:
-          vmImage: 'ubuntu-latest'      
         steps:
           - checkout: MyGitHubRepo
 
@@ -252,6 +250,7 @@ stages:
         - script: echo "CIAO - Raimondo3"
           name: echovar2
 
+
   # A) Build and code validation
   - stage: Build
     dependsOn: []
@@ -265,8 +264,6 @@ stages:
             
       # A2) Analyze source code to find errors with lint
       - job: lint
-        pool:
-          vmImage: 'ubuntu-latest'      
         steps:
         - template: azure-templates/make-build-steps.yml
           parameters:
@@ -278,8 +275,6 @@ stages:
 
       # A3) Validate API definition
       - job: lint_api
-        pool:
-          vmImage: 'ubuntu-latest'      
         steps:
         - script: |
             npx oval validate -p openapi/index.yaml
@@ -287,8 +282,6 @@ stages:
 
       # A4) Run Danger (skipping if not executing on a PR)
       - job: danger
-        pool:
-          vmImage: 'ubuntu-latest'
         condition: 
           and(
             succeeded(), 
@@ -311,8 +304,6 @@ stages:
 
   # B) Run unit tests if there is a push or pull request on any branch.
   - stage: Test
-    pool:
-      vmImage: 'ubuntu-latest'  
     dependsOn: []
     jobs:
       - job: unit_tests
@@ -337,8 +328,6 @@ stages:
   #    - manual deployment:
   #       - $DO_DEPLOY == true and DO_MANUAL_PUBLISH_RELEASE == true 
   - stage: Promote_release
-    pool:
-      vmImage: 'ubuntu-latest'
     dependsOn:
       - Build
       - Test
